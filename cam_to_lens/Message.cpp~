@@ -1,0 +1,63 @@
+#include "Arduino.h"
+#include "Message.h"
+
+
+//The whole message is given including 0xF0,...,0x55
+Message::Message(byte *messageBuffer) {
+  this->messageLength = (static_cast<uint16_t>(messageBuffer[2]) << 8) | static_cast<uint16_t>(messageBuffer[1]);
+  bodyLength = messageLength - HEADER_LENGTH - FOOTER_LENGTH;
+  messageClass = messageBuffer[3];
+  sequenceNumber = messageBuffer[4];
+  messageType = messageBuffer[5];
+  checksum = (static_cast<uint16_t>(messageBuffer[messageLength - 2]) << 8) | static_cast<uint16_t>(messageBuffer[messageLength - 3]);
+
+  //copy the body to the message buffer
+  for (int i = 0; i < bodyLength; i++) {
+    this->messageBuffer[i + HEADER_LENGTH] = messageBuffer[i+HEADER_LENGTH];
+  }
+  
+}
+
+//Only body is given, so need to add SOM, MessageLen, MessageClass, SeQNo, MessageType, (body), checksum, 0x55
+Message::Message(byte messageClass, int sequenceNumber, byte messageType, const byte *body, int bodyLength) {
+    messageLength = bodyLength + HEADER_LENGTH + FOOTER_LENGTH;
+    this->bodyLength = bodyLength;
+    this->messageClass = messageClass;
+    this->sequenceNumber = sequenceNumber;
+    this->messageType = messageType;
+        
+    //copy the body to the message buffer
+    for (int i = 0; i < bodyLength; i++) {
+      this->messageBuffer[i + HEADER_LENGTH] = body[i];
+    }
+}
+
+void Message::prepForSending() {
+  setHeader();
+  setFooter();
+}
+
+//sets message header
+void Message::setHeader(){
+  messageBuffer[INDEX_START] = START_BYTE;
+  messageBuffer[INDEX_MESSAGE_LENGTH_L] = messageLength & 0xFF;
+  messageBuffer[INDEX_MESSAGE_LENGTH_H] = messageLength >> 8;
+  messageBuffer[INDEX_MESSAGE_CLASS] = messageClass;
+  messageBuffer[INDEX_SEQUENCE_NUMBER] = sequenceNumber;
+  messageBuffer[INDEX_MESSAGE_TYPE] = messageType; 
+}
+
+void Message::setFooter(){
+  uint16_t checksum = 0;
+
+  for (int i = 1; i < HEADER_LENGTH + bodyLength; i++) {
+    checksum += messageBuffer[i];
+  }
+  
+  //set checksum
+  messageBuffer[HEADER_LENGTH + bodyLength] = checksum & 0xFF; //CHECKSUM_LOW
+  messageBuffer[HEADER_LENGTH + bodyLength+1] = checksum >> 8; //CHECKSUM_HIGH
+
+  //set End Byte
+  messageBuffer[HEADER_LENGTH + bodyLength + 2] = END_BYTE;
+}

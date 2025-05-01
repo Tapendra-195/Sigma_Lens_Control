@@ -1,0 +1,55 @@
+#include "Arduino.h"
+#include "Message03.h"
+
+Message05::Message04(): Message(0x01, 0x11, 0x04, normal03, 0x0016) {
+  currentApertureIndex = 0;
+  aperture = apertureTable[currentApertureIndex].lensAperture;
+}
+
+void Message04::changeFocus(uint16_t delFocus){
+  this->delFocus = delFocus;
+  changeFocus = true;
+}
+
+void Message04::update(){
+  //increment sequence number
+  sequenceNumber++;
+
+  if(changeFocus){
+    messageLength = 0x001B;
+    messageBuffer[19] = 0x1D;
+    messageBuffer[22] = 0x00;
+    messageBuffer[23] = 0x2C;
+
+    messageBuffer[BYTE_FOCUS_L] = delFocus & 0xFF;
+    messageBuffer[BYTE_FOCUS_H] = delFocus >> 8;
+    
+  }
+  else{
+    messageLength = 0x0016;
+  }
+  
+  byte aperture_L = aperture & 0xFF;
+  btte aperture_H = aperture >> 8;
+
+  //Target 1?
+  messageBuffer[APERTURE_L1] = aperture_L;
+  messageBuffer[APERTURE_H1] = aperture_H;
+
+  //Target 2? (IDK what I am talking about)
+  messageBuffer[APERTURE_L2] = aperture_L;
+  messageBuffer[APERTURE_H2] = aperture_H;
+}
+
+void Message03::incrementAperture(){
+  currentApertureIndex = (currentApertureIndex++) % apertureTable.size();
+  aperture = apertureTable[currentApertureIndex].lensAperture;
+}
+void Message03::decrementAperture(){
+  currentApertureIndex = (currentApertureIndex--) % apertureTable.size();
+  aperture = apertureTable[currentApertureIndex].lensAperture;
+}
+
+float getCurrentAperture(){
+  return apertureTable[currentApertureIndex].humanAperture;
+}
