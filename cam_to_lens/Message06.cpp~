@@ -1,0 +1,16 @@
+#include "Arduino.h"
+#include "Message05.h"
+
+Message05::Message05(byte messageClass = MESSAGE_CLASS_NORMAL, byte sequenceNumber = 0x11, byte messageType = MESSAGE_TYPE_05, const byte* body = normal05, uint16_t messageLength = 0x0075): Message(messageClass, sequenceNumber, messageType, body, messageLength) {
+  getAperture();
+}
+
+Message05::Message05(const byte* messageBuffer): Message(messsageBuffer) {
+  getAperture();
+}
+
+uint16_t Message05::getAperture() {
+  aperture = (static_cast<uint16_t>(messageBuffer[INDEX_APERTURE_H1]) << 8) | static_cast<uint16_t>(messageBuffer[INDEX_APERTURE_L1]);
+
+  return aperture;
+}

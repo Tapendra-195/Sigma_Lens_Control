@@ -1,0 +1,44 @@
+#include "Arduino.h"
+#include "Message03.h"
+
+Message05::Message03(byte messageClass = MESSAGE_CLASS_NORMAL, byte sequenceNumber = 0x11, byte messageType = MESSAGE_TYPE_03, const byte& body = normal03, uint16_t bodyLength = 0x0020): Message(messageClass, sequenceNumber, messageType, body, bodyLength) {
+  currentApertureIndex = 0;
+  aperture = apertureTable[currentApertureIndex].lensAperture;
+}
+
+
+void Message03::updateBasedOn05(Message& input) {
+  //if (input->bodyLength > 22) {
+    //body[17] = input->body[4];
+    //body[18] = input->body[5];
+  //}
+}
+
+void Message03::update(){
+  //increment sequence number
+  sequenceNumber++;
+  
+  byte aperture_L = aperture & 0xFF;
+  btte aperture_H = aperture >> 8;
+
+  //Target 1?
+  messageBuffer[BYTE_APERTURE_L1] = aperture_L;
+  messageBuffer[BYTE_APERTURE_H1] = aperture_H;
+
+  //Target 2? (IDK what I am talking about)
+  messageBuffer[BYTE_APERTURE_L2] = aperture_L;
+  messageBuffer[BYTE_APERTURE_H2] = aperture_H;
+}
+
+void Message03::incrementAperture(){
+  currentApertureIndex = (currentApertureIndex++) % apertureTable.size();
+  aperture = apertureTable[currentApertureIndex].lensAperture;
+}
+void Message03::decrementAperture(){
+  currentApertureIndex = (currentApertureIndex--) % apertureTable.size();
+  aperture = apertureTable[currentApertureIndex].lensAperture;
+}
+
+float getCurrentAperture(){
+  return apertureTable[currentApertureIndex].humanAperture;
+}
