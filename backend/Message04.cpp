@@ -1,0 +1,36 @@
+#include "Arduino.h"
+#include "Message04.h"
+
+Message04::Message04(byte messageClass, byte sequenceNumber, byte messageType, const byte* body, uint16_t messageLength): Message(messageClass, sequenceNumber, messageType, body, messageLength) {
+  mDelFocus = 0x00;
+  mChangeFocus = false;
+}
+
+void Message04::setFocus(int16_t currentFocus, int16_t targetFocus)
+{
+  mDelFocus = targetFocus - currentFocus;
+  mChangeFocus = true;
+}
+
+void Message04::update()
+{
+  //increment sequence number
+  mSequenceNumber++;
+
+  if(mChangeFocus){
+    mMessageLength = 0x001B;
+
+    mMessageBuffer[19] = 0x1D;
+    mMessageBuffer[INDEX_DEL_FOCUS_L] = mDelFocus & 0xFF;
+    mMessageBuffer[INDEX_DEL_FOCUS_H] = mDelFocus >> 8;
+    mMessageBuffer[22] = 0x00;
+    mMessageBuffer[23] = 0x2C;
+
+    mChangeFocus = false;
+  }
+  else{
+    mMessageLength = 0x0016;
+  }
+  
+}
+
