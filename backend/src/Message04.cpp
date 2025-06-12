@@ -1,5 +1,4 @@
-#include "Arduino.h"
-#include "Message04.h"
+#include "../include/Message04.h"
 
 Message04::Message04(byte messageClass, byte sequenceNumber, byte messageType, const byte* body, uint16_t messageLength): Message(messageClass, sequenceNumber, messageType, body, messageLength) {
   mDelFocus = 0x00;

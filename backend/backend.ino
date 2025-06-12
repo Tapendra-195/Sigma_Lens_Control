@@ -1,11 +1,10 @@
-#include "Config.h"
-#include "Constants.h"
-//#include "DebugTools.h"
-#include "Message.h"
-#include "Message03.h"
-#include "Message04.h"
-#include "Message05.h"
-#include "Message06.h"
+#include "include/Config.h"
+#include "include/Constants.h"
+#include "include/Message.h"
+#include "include/Message03.h"
+#include "include/Message04.h"
+#include "include/Message05.h"
+#include "include/Message06.h"
 
 int count = 0;
 

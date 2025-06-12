@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include "Message03.h"
+#include "../include/Message03.h"
 
 Message03::Message03(byte messageClass, byte sequenceNumber, byte messageType, const byte* body, uint16_t messageLength): Message(messageClass, sequenceNumber, messageType, body, messageLength) 
 {
