@@ -1,5 +1,5 @@
 # Sigma_Lens_Control
-Code to control the 15mm Sigma Art Lens
+Code to control the 15mm Sigma Art Lens. Sigma lens use E-Mount Sony's protol to communicate. The backend code is used in Teensy 4.0 microcontroller and the frontend code is used to set the focus and aperture of the lens.
 
 # To Compile Frontend:
 - cd frontend
