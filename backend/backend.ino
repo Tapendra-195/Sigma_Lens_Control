@@ -26,8 +26,8 @@ const unsigned long highDuration  = totalPeriod - lowDuration; // Remaining HIGH
 // Used for timing the pulse on BODY_VD_LENS_PIN.
 unsigned long lastPulseTime = 0;
 
-Message03 *message03 = new Message03();
-Message04 *message04 = new Message04();
+Message03 message03;
+Message04 message04;
 
 int lensToBodyBufferPosition = INVALID_POSITION;
 int packetLength = INVALID_POSITION;
@@ -38,7 +38,7 @@ byte inited = 0;
 int unusedClockWindows = 0;
 bool highspeedMode = false;
 
-int16_t currentFocus =0x00;
+int16_t currentLensPos =0x00;
 uint16_t currentAperture = 0x00;
 uint16_t lastApertureDialValue = 0x00;
 
@@ -55,7 +55,6 @@ void finishMessage() {
     Serial1.flush();
     delayMicroseconds(40);
     digitalWrite(PIN_BODY_CS_LENS, LOW);
-    unusedClockWindows = 0;  // We've sent something back
 }
 
 void setup() {
@@ -234,14 +233,14 @@ void loop() {
         unsigned int aperture = (unsigned int)arg.toInt();
         Serial.print("ACK: Setting Aperture to ");
         Serial.println(aperture); // value after "SA"
-        message03->setAperture(aperture);
+        message03.setAperture(aperture);
   
       } 
       else if (cmd == "SF") { // Set Focus
-        unsigned int focus = (unsigned int)arg.toInt();
-        message04->setFocus(currentFocus, focus);
+        unsigned int targetLensPos = (unsigned int)arg.toInt();
+        message04.setLensPos(currentLensPos, targetLensPos);
         Serial.print("ACK: Setting Focus to ");
-        Serial.println(focus); // value after "SA"
+        Serial.println(targetLensPos); // value after "SA"
       } 
       else if (cmd == "ON") {
         Serial.println("ACK: Lens turned ON.");
@@ -290,27 +289,27 @@ void processMessage(Message *input) {
             if(lastApertureDialValue != currentApertureDialValue)
             {
               lastApertureDialValue = currentApertureDialValue;
-              message03->setAperture(currentApertureDialValue);
+              message03.setAperture(currentApertureDialValue);
             }
             break;
           }
         case 0x06:
           {
-            currentFocus = static_cast<Message06*>(input)->getFocus();
+            currentLensPos = static_cast<Message06*>(input)->getLensPos();
 
             startMessage();
-            message03->update();
-            message03->prepForSending();
-            Serial1.write(message03->mMessageBuffer, message03->getMessageLength());
+            message03.update();
+            message03.prepForSending();
+            Serial1.write(message03.mMessageBuffer, message03.getMessageLength());
             finishMessage();
 
             delayMicroseconds(10);
             
 
             startMessage();
-            message04->update();
-            message04->prepForSending();
-            Serial1.write(message04->mMessageBuffer, message04->getMessageLength());
+            message04.update();
+            message04.prepForSending();
+            Serial1.write(message04.mMessageBuffer, message04.getMessageLength());
             finishMessage();
 
             break;

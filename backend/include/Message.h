@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Arduino.h"
 #include "Constants.h"
 #include <cstdint>
@@ -7,6 +6,7 @@
 class Message
 {
 public:
+  Message() = default;
   Message(const byte* messageBuffer);
   
   Message(byte messageClass, byte sequenceNumber, byte messageType, const byte* body, uint16_t messageLength);

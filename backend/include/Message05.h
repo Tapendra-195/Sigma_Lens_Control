@@ -1,6 +1,4 @@
 #pragma once
-
-#include "Arduino.h"
 #include "Message.h"
 
 class Message05 : public Message {
