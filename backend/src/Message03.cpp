@@ -41,10 +41,15 @@ void Message03::initialize()
   mMessageBuffer[28] = 0x16;
 }
 
+void Message03::reset()
+{
+  initialize();
+}
+
 void Message03::update()
 {
   //increment sequence number
-  mSequenceNumber++;
+  mSequenceNumber = (mSequenceNumber+1)%0xF0;
   
   byte aperture_L = mAperture & 0xFF;
   byte aperture_H = mAperture >> 8;

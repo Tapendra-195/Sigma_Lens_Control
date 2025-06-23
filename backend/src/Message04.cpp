@@ -33,6 +33,11 @@ void Message04::initialize()
   mMessageBuffer[18] = 0x00;
 }
 
+void Message04::reset()
+{
+  initialize();
+}
+
 void Message04::setLensPos(int16_t currentLensPos, int16_t targetLensPos)
 {
   mDelLensPos = targetLensPos - currentLensPos; //This is del lens position
@@ -42,7 +47,7 @@ void Message04::setLensPos(int16_t currentLensPos, int16_t targetLensPos)
 void Message04::update()
 {
   //increment sequence number
-  mSequenceNumber++;
+  mSequenceNumber = (mSequenceNumber+1)%0xF0;
 
   if(mMoveLens){
     mMessageLength = 0x001B;

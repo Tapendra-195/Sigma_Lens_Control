@@ -1,0 +1,35 @@
+@startuml
+hide empty description
+skinparam Shadowing false	
+skinparam State {
+  AttributeFontColor black
+  AttributeFontName serif
+  AttributeFontSize  9
+  BackgroundColor white
+  BorderColor black
+  EndColor black
+  FontColor black
+  FontName Sanserif
+  FontSize 15
+  FontStyle bold
+  StartColor black
+  ArrowColor black	
+}
+
+[*] --> IDLE: /transitionToIDLE()
+IDLE: Waiting for lens detect pin to go low
+IDLE --> LINK_ESTABLISHMENT: Lens Detected / transitionToLinkEstablishment()
+IDLE --> OFF: reset count > 4 / transitionToOff()
+
+LINK_ESTABLISHMENT : Link establishment
+LINK_ESTABLISHMENT --> SPEED_NEGOTIATION : Link Establishment succedes / transitionToSpeedNegotiation()
+LINK_ESTABLISHMENT --> IDLE : Link Establishment fails / transitionToIDLE()
+SPEED_NEGOTIATION --> INITIALIZATION : 0x0C msg received / transitionToInitialization()
+SPEED_NEGOTIATION --> IDLE : unknown msg received / transitionToIDLE()
+INITIALIZATION --> REGULAR_MESSAGING : 0x0A msg received / transitionToRegularMessaging()
+INITIALIZATION --> IDLE : unknown msg received /transitionToIDLE()
+REGULAR_MESSAGING --> SHUT_DOWN : power off received from the front end / transitionToShutDown()
+REGULAR_MESSAGING --> IDLE : unknown msg reveive /transitionToIDLE()
+SHUT_DOWN --> OFF : 0x16 msg received / transitionToOff()
+OFF --> IDLE : power on received from the front end
+@enduml

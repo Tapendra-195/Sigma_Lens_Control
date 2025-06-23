@@ -1,0 +1,61 @@
+@startuml
+skinparam groupInheritance 2
+hide empty description
+skinparam Shadowing false	
+skinparam class {
+  AttributeFontColor black
+  AttributeFontName serif
+  AttributeFontSize  9
+  BackgroundColor white
+  BorderColor black
+  EndColor black
+  FontColor black
+  FontName Sanserif
+  FontSize 15
+  FontStyle bold
+  StartColor black
+  ArrowColor black	
+}
+
+
+class Message
+{
+  +Message() = default;
+  +Message(const byte* messageBuffer);
+  +Message(byte messageClass, byte sequenceNumber, byte messageType, const byte* body, uint16_t messageLength);
+  +void prepForSending();
+  +byte getMessageType();
+  +byte getMessageLength();
+  +byte mMessageBuffer[MAX_BUFFER_SIZE] = {0};
+
+  -void setHeader();
+  -void setFooter();
+
+  #uint16_t mMessageLength;
+  #byte mMessageClass; 
+  #byte mSequenceNumber; 
+  #byte mMessageType;
+  
+}
+
+class Message03 {
+  +Message03();
+  +void update();
+  +void setAperture(unsigned int value);
+  +void reset();
+  
+  -void initialize();
+  -uint16_t mAperture;
+  -enum BYTES { INDEX_APERTURE_L1=9, INDEX_APERTURE_H1=10, INDEX_APERTURE_L2=11, INDEX_APERTURE_H2=12, INDEX_OVERWRITTEN=13, INDEX_NOT_ENABLE=17};
+}
+
+Message <|-- Message03
+
+class Dummy {
+ -field1
+ #field2
+ ~method1()
+ +method2()
+}
+
+@enduml

@@ -6,8 +6,7 @@ public:
   Message03();
   void update();
   void setAperture(unsigned int value);
-  void getApertureFromDial();
-
+  void reset();
   
 private:
   void initialize();
