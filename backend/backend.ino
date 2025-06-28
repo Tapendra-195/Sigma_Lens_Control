@@ -1,9 +1,11 @@
-#include "include/Firmware.h"
+#include "include/CameraFirmware.h"
 
-Firmware firmware;
+CameraFirmware firmware;
+HumiditySensor h;
 
 void setup() {
-  firmware.begin();
+  
+  firmware.attachHumiditySensor(&h);//Comment this if you are not using humidity sensor.
 }
 
 void loop() {

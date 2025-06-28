@@ -4,7 +4,7 @@
 class Message05 : public Message {
 public:
   Message05(const byte* messageBuffer);
-  Message05(byte messageClass = MESSAGE_CLASS_NORMAL, byte sequenceNumber = 0x11, byte messageType = MESSAGE_TYPE_05, const byte* body = normal05, uint16_t messageLength = 0x0075);
+  Message05(byte messageClass, byte sequenceNumber, byte messageType, const byte* body, uint16_t messageLength);
     
   uint16_t getAperture(); //gets currently set Aperture.
   uint16_t getApertureDialValue(); //Get the value the Aperture Dial is set at. Camera can set the aperture, so set aperture is not same as the dial value.

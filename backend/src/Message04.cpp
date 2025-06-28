@@ -13,7 +13,7 @@ void Message04::initialize()
   
   //Setting Header
   mMessageLength = 0x16;
-  mMessageClass = 0x01;
+  mMessageClass = static_cast<byte>(MESSAGE_CLASS::NORMAL);
   mSequenceNumber = 0x10;
   mMessageType = 0x04;
 

@@ -16,8 +16,17 @@ skinparam State {
   ArrowColor black	
 }
 
-[*] --> IDLE: /transitionToIDLE()
 IDLE: Waiting for lens detect pin to go low
+LINK_ESTABLISHMENT: Establishes UART Communication Link
+SPEED_NEGOTIATION: Negotiates Communication Speed
+INITIALIZATION: Homes focus and aperture
+REGULAR_MESSAGING: Polls Lens to get Focus and Aperture data and Commands the lens to set the focus and aperture
+SHUT_DOWN: Commands the lens to turn off UART communication.
+OFF: Turns off the microcontroller serial communication.
+
+
+[*] --> IDLE: /transitionToIDLE()
+
 IDLE --> LINK_ESTABLISHMENT: Lens Detected / transitionToLinkEstablishment()
 IDLE --> OFF: reset count > 4 / transitionToOff()
 

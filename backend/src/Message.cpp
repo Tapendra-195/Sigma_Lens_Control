@@ -3,11 +3,11 @@
 
 //The whole message is given including 0xF0,...,0x55
 Message::Message(const byte* messageBuffer) {
-  mMessageLength = (static_cast<uint16_t>(messageBuffer[INDEX_MESSAGE_LENGTH_H]) << 8) | static_cast<uint16_t>(messageBuffer[INDEX_MESSAGE_LENGTH_L]);
+  mMessageLength = (static_cast<uint16_t>(messageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_LENGTH_H)]) << 8) | static_cast<uint16_t>(messageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_LENGTH_L)]);
   //bodyLength = messageLength - HEADER_LENGTH - FOOTER_LENGTH;
-  mMessageClass = messageBuffer[3];
-  mSequenceNumber = messageBuffer[4];
-  mMessageType = messageBuffer[5];
+  mMessageClass = messageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_CLASS)];
+  mSequenceNumber = messageBuffer[static_cast<size_t>(HEADER::INDEX_SEQUENCE_NUMBER)];
+  mMessageType = messageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_TYPE)];
   
   //copy the body to the message buffer
   for (int i = 0; i < mMessageLength; i++) {
@@ -25,9 +25,9 @@ Message::Message(byte messageClass, byte sequenceNumber, byte messageType, const
     mMessageType = messageType;
         
     //copy the body to the message buffer
-    uint16_t bodyLength = mMessageLength - HEADER_LENGTH - FOOTER_LENGTH;
-    for (int i = 0; i < bodyLength; i++) {
-      mMessageBuffer[i + HEADER_LENGTH] = body[i];
+    uint16_t bodyLength = mMessageLength - static_cast<uint16_t>(PADDING::HEADER_LENGTH) - static_cast<uint16_t>(PADDING::FOOTER_LENGTH);
+    for (size_t i = 0; i < bodyLength; i++) {
+      mMessageBuffer[i + static_cast<size_t>(PADDING::HEADER_LENGTH)] = body[i];
     }
 }
 
@@ -38,27 +38,27 @@ void Message::prepForSending() {
 
 //sets message header
 void Message::setHeader(){
-  mMessageBuffer[INDEX_START] = START_BYTE;
-  mMessageBuffer[INDEX_MESSAGE_LENGTH_L] = mMessageLength & 0xFF;
-  mMessageBuffer[INDEX_MESSAGE_LENGTH_H] = mMessageLength >> 8;
-  mMessageBuffer[INDEX_MESSAGE_CLASS] = mMessageClass;
-  mMessageBuffer[INDEX_SEQUENCE_NUMBER] = mSequenceNumber;
-  mMessageBuffer[INDEX_MESSAGE_TYPE] = mMessageType; 
+  mMessageBuffer[static_cast<size_t>(HEADER::INDEX_START)] = static_cast<byte>(BYTE_VALUE::SOM);
+  mMessageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_LENGTH_L)] = mMessageLength & 0xFF;
+  mMessageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_LENGTH_H)] = mMessageLength >> 8;
+  mMessageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_CLASS)] = mMessageClass;
+  mMessageBuffer[static_cast<size_t>(HEADER::INDEX_SEQUENCE_NUMBER)] = mSequenceNumber;
+  mMessageBuffer[static_cast<size_t>(HEADER::INDEX_MESSAGE_TYPE)] = mMessageType; 
 }
 
 void Message::setFooter(){
   uint16_t checksum = 0;
-
-  for (int i = 1; i < mMessageLength - FOOTER_LENGTH; i++) {
+  
+  for (size_t i = 1; i < mMessageLength - static_cast<size_t>(PADDING::FOOTER_LENGTH); i++) {
     checksum += mMessageBuffer[i];
   }
   
   //set checksum
-  mMessageBuffer[mMessageLength - FOOTER_LENGTH] = checksum & 0xFF; //CHECKSUM_LOW
-  mMessageBuffer[mMessageLength - FOOTER_LENGTH + 1] = checksum >> 8; //CHECKSUM_HIGH
+  mMessageBuffer[mMessageLength - static_cast<int>(PADDING::FOOTER_LENGTH)] = checksum & 0xFF; //CHECKSUM_LOW
+  mMessageBuffer[mMessageLength - static_cast<int>(PADDING::FOOTER_LENGTH) + 1] = checksum >> 8; //CHECKSUM_HIGH
 
   //set End Byte
-  mMessageBuffer[mMessageLength - FOOTER_LENGTH + 2] = END_BYTE;
+  mMessageBuffer[mMessageLength - static_cast<int>(PADDING::FOOTER_LENGTH) + 2] = static_cast<byte>(BYTE_VALUE::EOM);
 }
 
 byte Message::getMessageType()

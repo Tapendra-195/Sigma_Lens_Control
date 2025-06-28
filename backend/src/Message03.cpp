@@ -11,7 +11,7 @@ void Message03::initialize()
   
   //Setting Header
   mMessageLength = 0x20;
-  mMessageClass = 0x01;
+  mMessageClass = static_cast<byte>(MESSAGE_CLASS::NORMAL);
   mSequenceNumber = 0x10;
   mMessageType = 0x03;
 
@@ -67,7 +67,7 @@ void Message03::update()
   mMessageBuffer[28] = mMessageBuffer[28]^0x01; //Starts from 16 then changes between 16 and 17
   mMessageBuffer[16] = (aperture_H < 0x16)?0x02:0x04;
   mMessageBuffer[18] = mMessageBuffer[18]^0x01;
-  mMessageBuffer[INDEX_NOT_ENABLE] = mMessageBuffer[INDEX_SEQUENCE_NUMBER]%mMessageBuffer[16];
+  mMessageBuffer[INDEX_NOT_ENABLE] = mMessageBuffer[static_cast<size_t>(HEADER::INDEX_SEQUENCE_NUMBER)]%mMessageBuffer[16];
 }
 
 void Message03::setAperture(unsigned int value)
