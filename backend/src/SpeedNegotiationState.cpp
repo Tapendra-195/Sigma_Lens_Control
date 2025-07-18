@@ -35,9 +35,9 @@ void SpeedNegotiationState::handleInput(CameraFirmware& firmware, EVENT e)
 	  break;
 	default:
 	  //unknown message received, reset
+	  firmware.mResetCount++;
 	  firmware.mState = &LensState::idle;
 	  firmware.mState->enter(firmware);
-	  firmware.mResetCount++;
 	  break;
 	}
     }

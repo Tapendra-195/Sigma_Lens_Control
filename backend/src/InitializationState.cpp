@@ -16,7 +16,7 @@ void InitializationState::enter(CameraFirmware& firmware)
   digitalWrite(static_cast<uint8_t>(LENS_PIN::LENS_PWR_SW), HIGH);
   
   delayMicroseconds(1000);
-  firmware.lensStatus.currentState = "INITIALIZATION";
+  firmware.lensStatus.currentState = "Initialization";
   //First initialization message
   firmware.sendMessage(init0B, sizeof(init0B));
 }
@@ -56,9 +56,9 @@ void InitializationState::handleInput(CameraFirmware& firmware, EVENT e)
 	  break;        
 	default:
 	  //Unknown message received. Reset.
+	  firmware.mResetCount++;
 	  firmware.mState = &LensState::idle;
 	  firmware.mState->enter(firmware);
-	  firmware.mResetCount++;
 	  break;
 	}
     }

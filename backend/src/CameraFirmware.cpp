@@ -9,23 +9,14 @@ CameraFirmware::CameraFirmware()
   pinMode(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), OUTPUT);    
   pinMode(static_cast<uint8_t>(LENS_PIN::LENS_DETECT), INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(static_cast<uint8_t>(LENS_PIN::LENS_DETECT)), lensDetectISR, CHANGE);
-
-    //Initialize start state to idle
-    //Could make Off the start state, If we want it to be off by default and turn on using the front end.
+  reset();
+  
+  //Initialize start state to idle
+  //Could make Off the start state, If we want it to be off by default and turn on using the front end.
   mState = &LensState::idle;
   mState->enter(*this);
-
+  
   Serial.begin(115200); //For usb communication with front end.
-}
-
-void CameraFirmware::lensDetectISR()
-{
-  if (digitalRead(static_cast<uint8_t>(LENS_PIN::LENS_DETECT)) == LOW) {
-    mInputBuffer.push(EVENT::LENS_CONNECTED);
-  } else {
-    mInputBuffer.push(EVENT::LENS_DISCONNECTED);
-  }
 }
 
 void CameraFirmware::updateFSM()
@@ -39,6 +30,44 @@ void CameraFirmware::updateFSM()
   mState->update(*this);
 }
 
+void CameraFirmware::attachHumiditySensor(HumiditySensor* h)
+{
+  humiditySensor = h;
+}
+
+
+void CameraFirmware::handleLensDetection()
+{
+  bool isDetected = !digitalRead(static_cast<uint8_t>(LENS_PIN::LENS_DETECT));
+  
+  if(!lensStatus.isConnected & isDetected)
+    {
+      mInputBuffer.push(EVENT::LENS_CONNECTED);
+      lensStatus.isConnected = true;
+    }
+  else if(lensStatus.isConnected & !isDetected)
+    {
+      mInputBuffer.push(EVENT::LENS_DISCONNECTED);
+      lensStatus.isConnected = false;
+    }
+
+}
+
+void CameraFirmware::reset()
+{
+  lensStatus = LensStatus{0x00, 0x00, 0x00, "", "", false};
+  disablePolling();
+}
+
+void CameraFirmware::enablePolling()
+{
+  mPollLens = true;
+}
+
+void CameraFirmware::disablePolling()
+{
+  mPollLens = false;
+}
 
 void CameraFirmware::run()
 {
@@ -46,6 +75,7 @@ void CameraFirmware::run()
   //processByte is non blocking. It strings bytes into a message.
   processByte();
   handleFrontEndInput();  
+  handleLensDetection();
   updateFSM();
   
   
@@ -99,11 +129,11 @@ void CameraFirmware::handleFrontEndInput()
       } 
       else if (cmd == "OFF") {
 	  mInputBuffer.push(EVENT::POWER_OFF);
-      } 
+      }
       else {
 	//Ignore unknown command
       }
-    }
+  }
 }
 
 //Sends a polling signal to lens to retrive the current focus and aperture of the lens.

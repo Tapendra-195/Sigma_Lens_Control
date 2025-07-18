@@ -1,44 +1,60 @@
 @startuml
 hide empty description
 skinparam Shadowing false	
+skinparam ArrowFontSize 20
 skinparam State {
   AttributeFontColor black
   AttributeFontName serif
-  AttributeFontSize  9
+  AttributeFontSize  20
   BackgroundColor white
   BorderColor black
   EndColor black
   FontColor black
   FontName Sanserif
-  FontSize 15
+  FontSize 20
   FontStyle bold
   StartColor black
   ArrowColor black	
 }
 
-IDLE: Waiting for lens detect pin to go low
+IDLE: Waits for lens to connect
 LINK_ESTABLISHMENT: Establishes UART Communication Link
 SPEED_NEGOTIATION: Negotiates Communication Speed
 INITIALIZATION: Homes focus and aperture
-REGULAR_MESSAGING: Polls Lens to get Focus and Aperture data and Commands the lens to set the focus and aperture
-SHUT_DOWN: Commands the lens to turn off UART communication.
-OFF: Turns off the microcontroller serial communication.
+REGULAR_MESSAGING: Polls Lens to get Focus and Aperture \nand sends commands to set the focus and aperture
+state SHUT_DOWN : Commands the lens to \nturn it's UART off.
+OFF: Lens is Powered off and \n Teensy's UART is closed.
 
+[*] --> IDLE: /
 
-[*] --> IDLE: /transitionToIDLE()
+IDLE --> LINK_ESTABLISHMENT: LENS_CONNECTED 
+IDLE --> OFF: POWER_OFF or resetCount > 4 
 
-IDLE --> LINK_ESTABLISHMENT: Lens Detected / transitionToLinkEstablishment()
-IDLE --> OFF: reset count > 4 / transitionToOff()
+state LINK_ESTABLISHMENT {
+    [*]--> WAIT_FOR_CS_HIGH
+    WAIT_FOR_CS_HIGH -->WAIT_FOR_RX_HIGH: LENS_CS_BODY is high / pull TX high
+    WAIT_FOR_RX_HIGH --> WAIT_FOR_CS_LOW: RX is high/ pull BODY_CS_LENS low
+    WAIT_FOR_CS_LOW --> COMPLETE: LENS_CS_BODY is low
 
-LINK_ESTABLISHMENT : Link establishment
-LINK_ESTABLISHMENT --> SPEED_NEGOTIATION : Link Establishment succedes / transitionToSpeedNegotiation()
-LINK_ESTABLISHMENT --> IDLE : Link Establishment fails / transitionToIDLE()
-SPEED_NEGOTIATION --> INITIALIZATION : 0x0C msg received / transitionToInitialization()
-SPEED_NEGOTIATION --> IDLE : unknown msg received / transitionToIDLE()
-INITIALIZATION --> REGULAR_MESSAGING : 0x0A msg received / transitionToRegularMessaging()
-INITIALIZATION --> IDLE : unknown msg received /transitionToIDLE()
-REGULAR_MESSAGING --> SHUT_DOWN : power off received from the front end / transitionToShutDown()
-REGULAR_MESSAGING --> IDLE : unknown msg reveive /transitionToIDLE()
-SHUT_DOWN --> OFF : 0x16 msg received / transitionToOff()
-OFF --> IDLE : power on received from the front end
+}
+
+LINK_ESTABLISHMENT --> SPEED_NEGOTIATION : COMPLETE phase reached within 2s/ begin serial1
+LINK_ESTABLISHMENT --> IDLE : COMPLETE phase isn't\n reached in 2s/ resetCount++ 
+SPEED_NEGOTIATION --> SPEED_NEGOTIATION : PROCESS_INPUT & messageType = 0x01 or 0x07
+SPEED_NEGOTIATION --> IDLE : PROCESS_INPUT &\n messageType != 0x01, 0x07 or 0x0C /resetCount++ 
+SPEED_NEGOTIATION --> INITIALIZATION : PROCESS_INPUT & messageType = 0x0C
+SPEED_NEGOTIATION --> SHUT_DOWN : POWER_OFF
+SPEED_NEGOTIATION --> OFF : LENS_DISCONNECTED
+INITIALIZATION --> INITIALIZATION : PROCESS_INPUT &\n messageType = 0x0B, 0x3F, 0x3D, 0x08, 0x09, 0x0D or 0x10
+INITIALIZATION --> REGULAR_MESSAGING : PROCESS_INPUT & messageType = 0x0A
+INITIALIZATION --> IDLE : PROCESS_INPUT & messageType != 0x0B, 0x3F, 0x3D,\n0x08, 0x09, 0x0D or 0x10 or 0x0A / resetCount++ 
+INITIALIZATION --> SHUT_DOWN : POWER_OFF
+INITIALIZATION --> OFF : LENS_DISCONNECTED
+REGULAR_MESSAGING --> SHUT_DOWN : POWER_OFF 
+REGULAR_MESSAGING --> REGULAR_MESSAGING : PROCESS_INPUT &\n messageType = 0x05 or 0x06
+REGULAR_MESSAGING --> IDLE : PROCESS_INPUT &\n messageType != 0x05 or 0x06 / resetCount++
+REGULAR_MESSAGING --> OFF : LENS_DISCONNECTED
+SHUT_DOWN --> SHUT_DOWN : PROCESS_INPUT &\n messageType = 0x0A, 0x05 or 0x06
+SHUT_DOWN --> OFF : LENS_DISCONNECTED or\n (PROCESS_INPUT & (messageType = 0x16 or messageType != 0x0A, 0x05, 0x06 or 0x16))
+OFF --> IDLE : POWER_ON / resetCount = 0
 @enduml

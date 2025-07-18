@@ -8,7 +8,7 @@ void RegularMessagingState::enter(CameraFirmware& firmware)
   firmware.mMessage04.reset();
   
   //Start Polling lens
-  firmware.mPollLens = true;
+  firmware.enablePolling();
   firmware.lensStatus.currentState = "RegularMessaging";
 }
 

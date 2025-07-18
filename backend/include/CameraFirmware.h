@@ -28,7 +28,7 @@ class CameraFirmware
   Message04 mMessage04;
   LensState* mState;
   uint8_t mResetCount = 0;
-  bool mPollLens = false; //Indicates if the firmware should send polling signal to the lens
+
   void sendMessage(const byte * message, int length); //Sends Message to lens
   byte lensToBodyBuffer[MAX_BUFFER_SIZE] = {0};
   
@@ -36,20 +36,21 @@ class CameraFirmware
   struct LensStatus
   {
   public:
-    int16_t currentLensPos =0x00;
-    uint16_t currentAperture = 0x00;
-    uint16_t apertureDialValue = 0x00;
-    String currentState  = "";
-    String extra = ""; //Can attach humidity value to extra
-    
+    int16_t currentLensPos;
+    uint16_t currentAperture;
+    uint16_t apertureDialValue;
+    String currentState;
+    String extra; //Can attach humidity value to extra
+    bool isConnected; //indicates if the lens is connected to the camera
   } lensStatus;
 
+  void reset();
   String getStatus();
-
-  void attachHumiditySensor(HumiditySensor* h)
-  {
-    humiditySensor = h;
-  }
+  void enablePolling();
+  void disablePolling();
+  void handleLensDetection();
+    
+  void attachHumiditySensor(HumiditySensor* h);
   
  private:
   static void lensDetectISR();
@@ -77,6 +78,7 @@ class CameraFirmware
   int packetLength = INVALID_POSITION;
 
   HumiditySensor* humiditySensor = nullptr;
+  bool mPollLens = false; //Indicates if the firmware should send polling signal to the lens
 };
 
 

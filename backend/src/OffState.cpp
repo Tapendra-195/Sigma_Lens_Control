@@ -15,8 +15,8 @@ void OffState::enter(CameraFirmware& firmware)
   digitalWrite(static_cast<uint8_t>(LENS_PIN::LENS_PWR_SW), LOW);
   
   //Disable lens polling
-  firmware.mPollLens = true;
-  firmware.lensStatus.currentState = "OFF";
+  firmware.disablePolling();
+  firmware.lensStatus.currentState = "Off";
 }
 
 void OffState::handleInput(CameraFirmware& firmware, EVENT e)
@@ -24,6 +24,7 @@ void OffState::handleInput(CameraFirmware& firmware, EVENT e)
   if(e == EVENT::POWER_ON)
     {
       //IDLE
+      firmware.mResetCount = 0;
       firmware.mState = &LensState::idle;
       firmware.mState->enter(firmware);
     }

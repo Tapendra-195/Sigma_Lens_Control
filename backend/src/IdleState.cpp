@@ -14,9 +14,9 @@ void IdleState::enter(CameraFirmware& firmware)
   //Turn the Logic Vcc and Lens Pwr off using a transistor in the beginning.
   digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), LOW);
   digitalWrite(static_cast<uint8_t>(LENS_PIN::LENS_PWR_SW), LOW);
-  
-  firmware.mPollLens = false;
-  firmware.lensStatus.currentState = "IDLE";
+
+  firmware.reset();
+  firmware.lensStatus.currentState = "Idle";
   delayMicroseconds(500);//just a random delay.
 }
 
@@ -36,4 +36,10 @@ void IdleState::handleInput(CameraFirmware& firmware, EVENT e)
       firmware.mState = &LensState::linkEstablishment;
       firmware.mState->enter(firmware);
     }
+  if(e == EVENT::POWER_OFF)
+    {
+      firmware.mState = &LensState::off;
+      firmware.mState->enter(firmware);
+    }
+
 }
