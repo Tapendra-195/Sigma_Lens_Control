@@ -24,8 +24,8 @@ enum class LENS_PIN
     BODY_CS_LENS = 3,
     BODY_POLL_LENS = 4,
     LENS_DETECT = 5,
-    LOGIC_VCC_SW = 6,
-    LENS_PWR_SW = 7
+    LOGIC_VCC_SW = 7,
+    LENS_PWR_SW = 6
 }; 
 
 
