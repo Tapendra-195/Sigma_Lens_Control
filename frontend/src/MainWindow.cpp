@@ -65,6 +65,10 @@ void MainWindow::reset(){
   ui->debugButton->setText("| >");
   ui->connectButton->setText("Connect");
   ui->curStateLabel->setText("Unknown");
+  ui->curTempLabel->setText("Unknown");
+  ui->curPressureLabel->setText("Unknown");
+  ui->curHumidityLabel->setText("Unknown");
+
   
   mLensPos = 0;
   mAperture = 0;
@@ -261,6 +265,39 @@ void MainWindow::handleMessage(QString msg)
       mLensPos = curLensPos;
       ui->curFocusLabel->setText(getFocus(mLensPos)+" m | 0x" + QString::number(mLensPos, 16).toUpper());
     }
+
+  // --- BME280 telemetry (from Teensy extra string: H:..,T:..,P:..) ---
+  const QString tStr = keyValueMap.value("T"); // temperature C
+  const QString pStr = keyValueMap.value("P"); // pressure hPa
+  const QString hStr = keyValueMap.value("H"); // humidity %
+
+  auto bad = [](const QString& s){
+    QString x = s.trimmed().toLower();
+    return x.isEmpty() || x == "na" || x == "nan";
+  };
+
+  if (!bad(tStr))
+    ui->curTempLabel->setText(tStr + " °C");
+  else if (!tStr.isEmpty())
+    ui->curTempLabel->setText("NA");
+
+  if (!bad(pStr))
+    ui->curPressureLabel->setText(pStr + " hPa");
+  else if (!pStr.isEmpty())
+    ui->curPressureLabel->setText("NA");
+
+  if (!bad(hStr))
+    ui->curHumidityLabel->setText(hStr + " %");
+  else if (!hStr.isEmpty())
+    ui->curHumidityLabel->setText("NA");
+
+  // sensor connection/health indicator (basic but effective)
+  const bool bmeOk = !bad(tStr) && !bad(pStr) && !bad(hStr);
+  if (!tStr.isEmpty() || !pStr.isEmpty() || !hStr.isEmpty()) {
+    ui->statusbar->showMessage(bmeOk ? "Connected (" + serial->portName() + ") | BME280 OK"
+                                     : "Connected (" + serial->portName() + ") | BME280 NOT FOUND");
+  }
+  
 }
 
 void MainWindow::readSerialData() {

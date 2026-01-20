@@ -79,6 +79,11 @@ class CameraFirmware
 
   HumiditySensor* humiditySensor = nullptr;
   bool mPollLens = false; //Indicates if the firmware should send polling signal to the lens
+
+  unsigned long lastStatusMs = 0;
+  const unsigned long statusPeriodMs = 2000;  // 0.5 Hz (adjust as you like)
+
+
 };
 
 

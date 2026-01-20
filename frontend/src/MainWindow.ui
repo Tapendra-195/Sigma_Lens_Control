@@ -85,6 +85,51 @@
             </property>
            </widget>
           </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_temp">
+            <property name="text">
+             <string>Temp:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="curTempLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
+
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_pressure">
+            <property name="text">
+             <string>Pressure:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="curPressureLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
+
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_humidity">
+            <property name="text">
+             <string>Humidity:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLabel" name="curHumidityLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
+
          </layout>
         </widget>
        </item>

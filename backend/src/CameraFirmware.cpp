@@ -15,8 +15,7 @@ CameraFirmware::CameraFirmware()
   //Could make Off the start state, If we want it to be off by default and turn on using the front end.
   mState = &LensState::idle;
   mState->enter(*this);
-  
-  Serial.begin(115200); //For usb communication with front end.
+
 }
 
 void CameraFirmware::updateFSM()
@@ -30,10 +29,20 @@ void CameraFirmware::updateFSM()
   mState->update(*this);
 }
 
-void CameraFirmware::attachHumiditySensor(HumiditySensor* h)
+void CameraFirmware::attachHumiditySensor(HumiditySensor* s)
 {
-  humiditySensor = h;
+  humiditySensor = s;
+  if (!humiditySensor) return;
+
+  // Ensure sensor rail is powered even with no lens
+  pinMode(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), OUTPUT);
+  digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), HIGH);
+
+  delay(20); // allow rail + BME280 to come up
+  humiditySensor->begin();   // now it will power-on + init reliably
+
 }
+
 
 
 void CameraFirmware::handleLensDetection()
@@ -78,20 +87,30 @@ void CameraFirmware::run()
   handleLensDetection();
   updateFSM();
   
+
+  // --- Status heartbeat (independent of lens/FSM) ---
+  const unsigned long nowMs = millis();
+  if (nowMs - lastStatusMs >= statusPeriodMs) {
+    lastStatusMs = nowMs;
+
+    if (humiditySensor != nullptr) {
+      lensStatus.extra = humiditySensor->packCSV(1);  // will be H:NA... if sensor missing
+    } else {
+      lensStatus.extra = "";
+    }
+
+    Serial.println(getStatus());
+  }
   
   //Poll Lens
   unsigned long currentTime = micros();
   // Check if it's time to issue the low pulse:
   if (currentTime - lastPulseTime >= totalPeriod) {
     //Send Message back to the front end
-    if(humiditySensor != nullptr)
-      {
-	lensStatus.extra = "H:" + String(humiditySensor->getHumidity());
-      }
-    Serial.println(getStatus());
+    //Serial.println(getStatus());
     if(mPollLens)
       {
-	pollLens();
+	      pollLens();
       }
     // Reset timer
     lastPulseTime = currentTime;
@@ -118,17 +137,17 @@ void CameraFirmware::handleFrontEndInput()
       
       if (cmd == "SA") { // Set Aperture
         unsigned int aperture = (unsigned int)arg.toInt();
-	mMessage03.setAperture(aperture);
+	      mMessage03.setAperture(aperture);
       } 
       else if (cmd == "SF") { // Set Focus
-	  unsigned int targetLensPos = (unsigned int)arg.toInt();
-	  mMessage04.setLensPos(lensStatus.currentLensPos, targetLensPos);
+	      unsigned int targetLensPos = (unsigned int)arg.toInt();
+	      mMessage04.setLensPos(lensStatus.currentLensPos, targetLensPos);
       } 
       else if (cmd == "ON") {
-	  mInputBuffer.push(EVENT::POWER_ON);
+	      mInputBuffer.push(EVENT::POWER_ON);
       } 
       else if (cmd == "OFF") {
-	  mInputBuffer.push(EVENT::POWER_OFF);
+	      mInputBuffer.push(EVENT::POWER_OFF);
       }
       else {
 	//Ignore unknown command
@@ -212,3 +231,5 @@ void CameraFirmware::processByte()
 	}
     }
 }
+
+
