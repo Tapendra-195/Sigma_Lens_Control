@@ -1,15 +1,41 @@
-# Sigma_Lens_Control
-Code to control the 15mm Sigma Art Lens. Sigma lens use E-Mount Sony's protol to communicate. The backend code is used in Teensy 4.0 microcontroller and the frontend code is used to set the focus and aperture of the lens.
+## Sigma_Lens_Control
 
-# To Compile Frontend:
-- cd frontend
-- mkdir bin
-- cd bin
-- qmake ..
-- make
+Control software for the Sigma 15mm Art lens (Sony E-mount protocol).
 
-# To upload backend firmware:
-- Open backend.ino in arduino ide then compile and upload.
+The system consists of:
 
-# To do:
-- Implement timeout in each state. If no message is received from the lens for n sec, the lens should timeout. Can be easily implemented with the update method in the states.
+Backend firmware running on a Teensy 4.0
+
+Frontend Qt GUI for setting focus and aperture
+
+(Optional) a TCP bridge running on a Beagle board for network-based control
+
+The Sigma lens communicates using Sony E-mount protocol.
+The Teensy firmware handles low-level protocol communication.
+The Qt frontend provides user control.
+
+## Architecture
+
+Two connection modes are supported:
+
+## Direct USB Mode (Original / Bench Mode)
+Qt GUI  →  USB Serial  →  Teensy  →  Lens
+
+The GUI connects directly to the Teensy over USB.
+
+Recommended for development and bench testing.
+
+No network required.
+
+##  TCP Bridge Mode (Deployment / Remote Mode)
+Qt GUI  →  TCP  →  Beagle (teensy_bridge)  →  USB Serial  →  Teensy  →  Lens
+
+The Teensy is connected to a Beagle board via USB.
+
+The Beagle runs a small TCP bridge (teensy_bridge.py).
+
+The GUI connects to the Beagle over the network.
+
+Useful for remote or headless deployments.
+
+Both modes use the same GUI codebase.

@@ -5,25 +5,29 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QDebug>
+#include <QTcpSocket>
+#include <QIODevice>
 #include <math.h>
 #include <algorithm>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui
+{
+  class MainWindow;
+}
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
-  
+
 public:
   MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
-	       
+
 private slots:
-  
+
   void toggleConnect();
-  //  void sendCommand();
-  void readSerialData();
   void showAbout();
   void updateAperture();
   void updateFocus();
@@ -36,25 +40,45 @@ private slots:
   void decrementFocus();
   void handleSerialError(QSerialPort::SerialPortError error);
   void toggleDebug();
+
 private:
   void reset();
   void allowControl(bool value);
   bool openSerialPort();
   bool closeSerialPort();
   void sendCommand(QString cmd);
-  void handleMessage(QString msg);//Parses message received from lens and sets values.
-  void appendDebugLine(const QString& line, int maxLines = 2000);
+  void handleMessage(QString msg); // Parses message received from lens and sets values.
+  void appendDebugLine(const QString &line, int maxLines = 2000);
   QString getFocus(uint16_t lensPos);
   float getFNumber(uint16_t aperture);
   bool mDebug = false;
-  bool mPowerState = true;//indicates on
+  bool mPowerState = true; // indicates on
   uint16_t mLensPos = 0;
   uint16_t mAperture = 0;
   QString mCameraID = "Unknown";
   QStringList logLines;
   const int maxLines = 500;
   Ui::MainWindow *ui;
-  QSerialPort *serial;
-  void refreshPortList();  
+
+  QSerialPort *mSerial = nullptr;
+  QTcpSocket *mSock = nullptr;
+  QIODevice *io = nullptr; // active transport
+  QString rxBuf;           // for newline buffering
+
+  // Telemetry cache
+  QMap<QString, QString> mLastKV;
+  bool mHaveTelemetry = false;
+
+  // slow UI update timer
+  QTimer *mTelemetryTimer = nullptr;
+
+  // helper: display connection name
+  QString connectionLabel() const;
+
+  void refreshPortList();
+
+  private slots:
+    void onIoReadyRead();
+    void updateTelemetryUi();
 };
 #endif // MAINWINDOW_H
