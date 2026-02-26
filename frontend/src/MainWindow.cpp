@@ -1,6 +1,7 @@
 #include "../include/MainWindow.h"
 #include "ui_MainWindow.h"
 #include <QMessageBox>
+#include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), serial(new QSerialPort(this)) {
@@ -69,7 +70,11 @@ void MainWindow::reset(){
   ui->curPressureLabel->setText("Unknown");
   ui->curHumidityLabel->setText("Unknown");
 
-  
+  ui->curAccelLabel->setText("Unknown");
+  ui->curGyroLabel->setText("Unknown");
+  ui->curMagLabel->setText("Unknown");
+  ui->curBmagLabel->setText("Unknown");
+  ui->curHeadingLabel->setText("Unknown");
   mLensPos = 0;
   mAperture = 0;
   mDebug = false;
@@ -225,13 +230,12 @@ void MainWindow::handleMessage(QString msg)
   
   for (const QString &part : parts) {
     if (part.contains(':')) {
-      QStringList pair = part.split(':', Qt::SkipEmptyParts);
-      if (pair.size() == 2) {
-	keyValueMap.insert(pair[0], pair[1]);
-      }
+        QStringList pair = part.split(':');   // ← remove SkipEmptyParts
+        if (pair.size() >= 2) {
+            keyValueMap.insert(pair[0].trimmed(), pair[1].trimmed());
+        }
     } else {
-      // Handle free-form message (no colon)
-      keyValueMap.insert("Message", part);
+        keyValueMap.insert("Message", part);
     }
   }
 
@@ -296,6 +300,67 @@ void MainWindow::handleMessage(QString msg)
   if (!tStr.isEmpty() || !pStr.isEmpty() || !hStr.isEmpty()) {
     ui->statusbar->showMessage(bmeOk ? "Connected (" + serial->portName() + ") | BME280 OK"
                                      : "Connected (" + serial->portName() + ") | BME280 NOT FOUND");
+  }
+
+    // --- IMU + MAG telemetry (Ax..Gz, Bx..Bz, optional Hd) ---
+  auto toDoubleSafe = [&](const QString& s, double& out) -> bool {
+    QString x = s.trimmed();
+    if (x.isEmpty()) return false;
+    QString xl = x.toLower();
+    if (xl == "na" || xl == "nan") return false;
+    bool ok = false;
+    out = x.toDouble(&ok);
+    return ok;
+  };
+
+  auto fmt3 = [](double v, int dec=2) {
+    return QString::number(v, 'f', dec);
+  };
+
+  // Accel
+  double ax, ay, az;
+  if (toDoubleSafe(keyValueMap.value("Ax"), ax) &&
+      toDoubleSafe(keyValueMap.value("Ay"), ay) &&
+      toDoubleSafe(keyValueMap.value("Az"), az)) {
+    ui->curAccelLabel->setText(QString("Ax:%1  Ay:%2  Az:%3")
+                               .arg(fmt3(ax,2)).arg(fmt3(ay,2)).arg(fmt3(az,2)));
+  } else if (keyValueMap.contains("Ax") || keyValueMap.contains("Ay") || keyValueMap.contains("Az")) {
+    ui->curAccelLabel->setText("NA");
+  }
+
+  // Gyro
+  double gx, gy, gz;
+  if (toDoubleSafe(keyValueMap.value("Gx"), gx) &&
+      toDoubleSafe(keyValueMap.value("Gy"), gy) &&
+      toDoubleSafe(keyValueMap.value("Gz"), gz)) {
+    ui->curGyroLabel->setText(QString("Gx:%1  Gy:%2  Gz:%3")
+                              .arg(fmt3(gx,2)).arg(fmt3(gy,2)).arg(fmt3(gz,2)));
+  } else if (keyValueMap.contains("Gx") || keyValueMap.contains("Gy") || keyValueMap.contains("Gz")) {
+    ui->curGyroLabel->setText("NA");
+  }
+
+  // Magnetometer
+  double bx, by, bz;
+  if (toDoubleSafe(keyValueMap.value("Bx"), bx) &&
+      toDoubleSafe(keyValueMap.value("By"), by) &&
+      toDoubleSafe(keyValueMap.value("Bz"), bz)) {
+
+    ui->curMagLabel->setText(QString("Bx:%1  By:%2  Bz:%3")
+                             .arg(fmt3(bx,2)).arg(fmt3(by,2)).arg(fmt3(bz,2)));
+
+    const double Bmag = std::sqrt(bx*bx + by*by + bz*bz);
+    ui->curBmagLabel->setText(QString::number(Bmag, 'f', 1));
+  } else if (keyValueMap.contains("Bx") || keyValueMap.contains("By") || keyValueMap.contains("Bz")) {
+    ui->curMagLabel->setText("NA");
+    ui->curBmagLabel->setText("NA");
+  }
+
+  // Optional heading
+  double hd;
+  if (toDoubleSafe(keyValueMap.value("Hd"), hd)) {
+    ui->curHeadingLabel->setText(QString::number(hd, 'f', 1));
+  } else if (keyValueMap.contains("Hd")) {
+    ui->curHeadingLabel->setText("NA");
   }
   
 }

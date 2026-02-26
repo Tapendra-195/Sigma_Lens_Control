@@ -17,6 +17,8 @@
 #include "RingBuffer.h"
 
 #include "HumiditySensor.h"
+#include "MagSensor.h"
+#include "ImuSensor.h"
 
 class CameraFirmware
 {
@@ -51,7 +53,9 @@ class CameraFirmware
   void handleLensDetection();
     
   void attachHumiditySensor(HumiditySensor* h);
-  
+  void attachImuSensor(ImuSensor* imu);
+  void attachMagSensor(MagSensor* mag);
+
  private:
   static void lensDetectISR();
   void handleFrontEndInput();
@@ -78,6 +82,9 @@ class CameraFirmware
   int packetLength = INVALID_POSITION;
 
   HumiditySensor* humiditySensor = nullptr;
+  ImuSensor* imuSensor = nullptr;
+  MagSensor* magSensor = nullptr;
+  
   bool mPollLens = false; //Indicates if the firmware should send polling signal to the lens
 
   unsigned long lastStatusMs = 0;

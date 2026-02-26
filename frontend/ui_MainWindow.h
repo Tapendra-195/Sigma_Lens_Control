@@ -51,6 +51,16 @@ public:
     QLabel *curPressureLabel;
     QLabel *label_humidity;
     QLabel *curHumidityLabel;
+    QLabel *label_accel;
+    QLabel *curAccelLabel;
+    QLabel *label_gyro;
+    QLabel *curGyroLabel;
+    QLabel *label_mag;
+    QLabel *curMagLabel;
+    QLabel *label_bmag;
+    QLabel *curBmagLabel;
+    QLabel *label_heading;
+    QLabel *curHeadingLabel;
     QFrame *frame_7;
     QHBoxLayout *horizontalLayout_3;
     QSpacerItem *horizontalSpacer;
@@ -179,6 +189,56 @@ public:
         curHumidityLabel->setObjectName("curHumidityLabel");
 
         formLayout_2->setWidget(5, QFormLayout::ItemRole::FieldRole, curHumidityLabel);
+
+        label_accel = new QLabel(frame_2);
+        label_accel->setObjectName("label_accel");
+
+        formLayout_2->setWidget(6, QFormLayout::ItemRole::LabelRole, label_accel);
+
+        curAccelLabel = new QLabel(frame_2);
+        curAccelLabel->setObjectName("curAccelLabel");
+
+        formLayout_2->setWidget(6, QFormLayout::ItemRole::FieldRole, curAccelLabel);
+
+        label_gyro = new QLabel(frame_2);
+        label_gyro->setObjectName("label_gyro");
+
+        formLayout_2->setWidget(7, QFormLayout::ItemRole::LabelRole, label_gyro);
+
+        curGyroLabel = new QLabel(frame_2);
+        curGyroLabel->setObjectName("curGyroLabel");
+
+        formLayout_2->setWidget(7, QFormLayout::ItemRole::FieldRole, curGyroLabel);
+
+        label_mag = new QLabel(frame_2);
+        label_mag->setObjectName("label_mag");
+
+        formLayout_2->setWidget(8, QFormLayout::ItemRole::LabelRole, label_mag);
+
+        curMagLabel = new QLabel(frame_2);
+        curMagLabel->setObjectName("curMagLabel");
+
+        formLayout_2->setWidget(8, QFormLayout::ItemRole::FieldRole, curMagLabel);
+
+        label_bmag = new QLabel(frame_2);
+        label_bmag->setObjectName("label_bmag");
+
+        formLayout_2->setWidget(9, QFormLayout::ItemRole::LabelRole, label_bmag);
+
+        curBmagLabel = new QLabel(frame_2);
+        curBmagLabel->setObjectName("curBmagLabel");
+
+        formLayout_2->setWidget(9, QFormLayout::ItemRole::FieldRole, curBmagLabel);
+
+        label_heading = new QLabel(frame_2);
+        label_heading->setObjectName("label_heading");
+
+        formLayout_2->setWidget(10, QFormLayout::ItemRole::LabelRole, label_heading);
+
+        curHeadingLabel = new QLabel(frame_2);
+        curHeadingLabel->setObjectName("curHeadingLabel");
+
+        formLayout_2->setWidget(10, QFormLayout::ItemRole::FieldRole, curHeadingLabel);
 
 
         formLayout->setWidget(0, QFormLayout::ItemRole::LabelRole, frame_2);
@@ -452,6 +512,16 @@ public:
         curPressureLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         label_humidity->setText(QCoreApplication::translate("MainWindow", "Humidity:", nullptr));
         curHumidityLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        label_accel->setText(QCoreApplication::translate("MainWindow", "Accel (m/s\302\262):", nullptr));
+        curAccelLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        label_gyro->setText(QCoreApplication::translate("MainWindow", "Gyro (dps):", nullptr));
+        curGyroLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        label_mag->setText(QCoreApplication::translate("MainWindow", "Mag (\302\265T):", nullptr));
+        curMagLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        label_bmag->setText(QCoreApplication::translate("MainWindow", "|B| (\302\265T):", nullptr));
+        curBmagLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
+        label_heading->setText(QCoreApplication::translate("MainWindow", "Heading (deg):", nullptr));
+        curHeadingLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         powerButton->setText(QCoreApplication::translate("MainWindow", "Shut Down", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Select Port", nullptr));
         refreshButton->setText(QCoreApplication::translate("MainWindow", "Refresh", nullptr));
