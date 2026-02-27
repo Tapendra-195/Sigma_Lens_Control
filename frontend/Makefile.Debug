@@ -326,6 +326,21 @@ debug/moc_MainWindow.cpp: include/MainWindow.h \
 		C:/Qt/6.10.1/mingw_64/include/QtNetwork/qabstractsocket.h \
 		C:/Qt/6.10.1/mingw_64/include/QtNetwork/qhostaddress.h \
 		C:/Qt/6.10.1/mingw_64/include/QtCore/QIODevice \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QTimer \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qtimer.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonDocument \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsondocument.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonparseerror.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonvalue.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcborvalue.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcborcommon.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qdatetime.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcalendar.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qregularexpression.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/quuid.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonObject \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonobject.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonParseError \
 		debug/moc_predefs.h \
 		C:/Qt/6.10.1/mingw_64/bin/moc.exe
 	C:\Qt\6.10.1\mingw_64\bin\moc.exe $(DEFINES) --include C:/Users/ablai/Documents/photogrammetry/hk_camera/E-Mount/E-Mount/Sigma_Lens_Control/frontend/debug/moc_predefs.h -IC:/Qt/6.10.1/mingw_64/mkspecs/win32-g++ -IC:/Users/ablai/Documents/photogrammetry/hk_camera/E-Mount/E-Mount/Sigma_Lens_Control/frontend -IC:/Qt/6.10.1/mingw_64/include -IC:/Qt/6.10.1/mingw_64/include/QtWidgets -IC:/Qt/6.10.1/mingw_64/include/QtGui -IC:/Qt/6.10.1/mingw_64/include/QtSerialPort -IC:/Qt/6.10.1/mingw_64/include/QtNetwork -IC:/Qt/6.10.1/mingw_64/include/QtCore -I/usr/include/c++/13 -I/usr/include/x86_64-linux-gnu/c++/13 -I/usr/include/c++/13/backward -I/usr/lib/gcc/x86_64-linux-gnu/13/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include include\MainWindow.h -o debug\moc_MainWindow.cpp
@@ -571,6 +586,21 @@ debug/SigmaControl.o: src/SigmaControl.cpp include/MainWindow.h \
 		C:/Qt/6.10.1/mingw_64/include/QtNetwork/qabstractsocket.h \
 		C:/Qt/6.10.1/mingw_64/include/QtNetwork/qhostaddress.h \
 		C:/Qt/6.10.1/mingw_64/include/QtCore/QIODevice \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QTimer \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qtimer.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonDocument \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsondocument.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonparseerror.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonvalue.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcborvalue.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcborcommon.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qdatetime.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcalendar.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qregularexpression.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/quuid.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonObject \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonobject.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonParseError \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/QApplication \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/qapplication.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\SigmaControl.o src\SigmaControl.cpp
@@ -793,6 +823,21 @@ debug/MainWindow.o: src/MainWindow.cpp include/MainWindow.h \
 		C:/Qt/6.10.1/mingw_64/include/QtNetwork/qabstractsocket.h \
 		C:/Qt/6.10.1/mingw_64/include/QtNetwork/qhostaddress.h \
 		C:/Qt/6.10.1/mingw_64/include/QtCore/QIODevice \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QTimer \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qtimer.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonDocument \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsondocument.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonparseerror.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonvalue.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcborvalue.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcborcommon.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qdatetime.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qcalendar.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qregularexpression.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/quuid.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonObject \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/qjsonobject.h \
+		C:/Qt/6.10.1/mingw_64/include/QtCore/QJsonParseError \
 		ui_MainWindow.h \
 		C:/Qt/6.10.1/mingw_64/include/QtCore/QVariant \
 		C:/Qt/6.10.1/mingw_64/include/QtGui/QAction \
@@ -804,7 +849,6 @@ debug/MainWindow.o: src/MainWindow.cpp include/MainWindow.h \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/qstyleoption.h \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/qabstractspinbox.h \
 		C:/Qt/6.10.1/mingw_64/include/QtGui/qvalidator.h \
-		C:/Qt/6.10.1/mingw_64/include/QtCore/qregularexpression.h \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/qslider.h \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/qabstractslider.h \
 		C:/Qt/6.10.1/mingw_64/include/QtWidgets/qstyle.h \

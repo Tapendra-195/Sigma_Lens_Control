@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       mSerial(new QSerialPort(this)),
       mSock(new QTcpSocket(this)),
+      mCamSock(new QTcpSocket(this)),
       io(nullptr)
 {
   ui->setupUi(this);
@@ -64,11 +65,42 @@ MainWindow::MainWindow(QWidget *parent)
                 ui->statusbar->showMessage("TCP disconnected");
                 allowControl(false); });
 
+    // ---- Camera UI connections ----
+  connect(ui->camConnectButton, &QPushButton::clicked,
+          this, &MainWindow::camToggleConnect);
+  connect(ui->camStatusButton, &QPushButton::clicked,
+          this, &MainWindow::camStatus);
+  connect(ui->camCaptureButton, &QPushButton::clicked,
+          this, &MainWindow::camCapture);
+
+  // ---- Camera transport connections ----
+  connect(mCamSock, &QTcpSocket::readyRead,
+          this, &MainWindow::onCamReadyRead);
+
+  connect(mCamSock, &QTcpSocket::errorOccurred,
+          this, [this](auto){
+            ui->statusbar->showMessage("Camera TCP error");
+            mCamConnected = false;
+            setCameraUiEnabled(false);
+            ui->camConnectButton->setText("Connect Camera");
+          });
+
+  connect(mCamSock, &QTcpSocket::disconnected,
+          this, [this](){
+            ui->statusbar->showMessage("Camera TCP disconnected");
+            mCamConnected = false;
+            setCameraUiEnabled(false);
+            ui->camConnectButton->setText("Connect Camera");
+          });
+
   ui->portComboBox->setEditable(true);
   mTelemetryTimer = new QTimer(this);
   connect(mTelemetryTimer, &QTimer::timeout,
           this, &MainWindow::updateTelemetryUi);
   mTelemetryTimer->start(500); // 500 ms = 2 Hz
+
+  // Camera defaults + disable until connected
+  setCameraUiEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -78,6 +110,9 @@ MainWindow::~MainWindow()
 
   if (mSock && mSock->isOpen())
     mSock->close();
+
+  if (mCamSock && mCamSock->isOpen())
+    mCamSock->close();
 
   delete ui;
 }
@@ -648,4 +683,197 @@ void MainWindow::handleSerialError(QSerialPort::SerialPortError error)
         closeSerialPort();
         reset();
     }
+}
+
+void MainWindow::setCameraUiEnabled(bool en)
+{
+  // Don’t disable the endpoint field; only action buttons
+  ui->camStatusButton->setEnabled(en);
+  ui->camCaptureButton->setEnabled(en);
+
+  // Parameter widgets can remain enabled even when disconnected,
+  // but feel free to lock them too if you prefer:
+  ui->exposureUsSpin->setEnabled(true);
+  ui->gainSpin->setEnabled(true);
+  ui->countSpin->setEnabled(true);
+  ui->formatCombo->setEnabled(true);
+  ui->outdirEdit->setEnabled(true);
+  ui->prefixEdit->setEnabled(true);
+  ui->cameraEndpointEdit->setEnabled(true);
+}
+
+bool MainWindow::openCameraTcp(const QString &endpoint)
+{
+  QString target = endpoint.trimmed();
+  if (!target.startsWith("tcp:", Qt::CaseInsensitive))
+  {
+    QMessageBox::critical(this, "Error",
+                          "Camera endpoint must be tcp:HOST:PORT (e.g. tcp:192.168.50.20:5001)");
+    return false;
+  }
+
+  QString t = target.mid(4);
+  QStringList hp = t.split(':');
+  if (hp.size() != 2)
+  {
+    QMessageBox::critical(this, "Error",
+                          "Camera endpoint must be tcp:HOST:PORT (e.g. tcp:192.168.50.20:5001)");
+    return false;
+  }
+
+  QString host = hp[0];
+  bool ok = false;
+  quint16 port = hp[1].toUShort(&ok);
+  if (!ok || port == 0)
+  {
+    QMessageBox::critical(this, "Error", "Invalid camera TCP port.");
+    return false;
+  }
+
+  if (mCamSock->isOpen())
+    mCamSock->close();
+
+  mCamRxBuf.clear();
+  mCamSock->connectToHost(host, port);
+  if (!mCamSock->waitForConnected(1500))
+  {
+    QMessageBox::critical(this, "Error", "Failed to connect to camera TCP bridge.");
+    return false;
+  }
+
+  mCamConnected = true;
+  setCameraUiEnabled(true);
+  ui->statusbar->showMessage("Camera connected (TCP) " + host + ":" + QString::number(port));
+  return true;
+}
+
+void MainWindow::closeCameraTcp()
+{
+  mCamConnected = false;
+  mCamRxBuf.clear();
+
+  if (mCamSock && mCamSock->isOpen())
+    mCamSock->close();
+
+  setCameraUiEnabled(false);
+  ui->statusbar->showMessage("Camera disconnected");
+}
+
+void MainWindow::sendCamJsonLine(const QJsonObject &obj)
+{
+  if (!mCamSock || !mCamSock->isOpen())
+  {
+    QMessageBox::critical(this, "Error", "Camera connection is closed.");
+    return;
+  }
+
+  QJsonDocument doc(obj);
+  QByteArray line = doc.toJson(QJsonDocument::Compact);
+  line.append('\n');
+
+  mCamSock->write(line);
+
+  if (mDebug)
+    appendDebugLine(QString("CAM >> %1").arg(QString::fromUtf8(line).trimmed()));
+}
+
+void MainWindow::onCamReadyRead()
+{
+  if (!mCamSock) return;
+
+  mCamRxBuf.append(mCamSock->readAll());
+
+  int nl = -1;
+  while ((nl = mCamRxBuf.indexOf('\n')) >= 0)
+  {
+    QByteArray line = mCamRxBuf.left(nl);
+    mCamRxBuf.remove(0, nl + 1);
+
+    line = line.trimmed();
+    if (line.isEmpty())
+      continue;
+
+    if (mDebug)
+      appendDebugLine(QString("CAM << %1").arg(QString::fromUtf8(line)));
+
+    // Try parse JSON; if it fails, still show raw
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(line, &err);
+    if (err.error != QJsonParseError::NoError)
+    {
+      ui->statusbar->showMessage("Camera RX (non-JSON): " + QString::fromUtf8(line));
+      continue;
+    }
+
+    // Minimal Phase-1 behavior: just surface a short status message
+    if (doc.isObject())
+    {
+      QJsonObject obj = doc.object();
+      if (obj.contains("ok"))
+      {
+        ui->statusbar->showMessage(QString("Camera: ok=%1").arg(obj["ok"].toBool() ? "true" : "false"));
+      }
+      else if (obj.contains("status"))
+      {
+        ui->statusbar->showMessage("Camera status received");
+      }
+      else
+      {
+        ui->statusbar->showMessage("Camera response received");
+      }
+    }
+  }
+}
+
+// =============================
+// ASI Camera (Phase 1) handlers
+// =============================
+
+void MainWindow::camToggleConnect()
+{
+  // We treat "connected" as mCamSock->isOpen()
+  const bool isOpen = (mCamSock && mCamSock->isOpen());
+
+  if (!isOpen)
+  {
+    const QString ep = ui->cameraEndpointEdit->text().trimmed();
+    if (openCameraTcp(ep))
+    {
+      ui->camConnectButton->setText("Disconnect Camera");
+      setCameraUiEnabled(true);
+    }
+  }
+  else
+  {
+    closeCameraTcp();
+    ui->camConnectButton->setText("Connect Camera");
+    setCameraUiEnabled(false);
+  }
+}
+
+void MainWindow::camStatus()
+{
+  QJsonObject obj;
+  obj["cmd"] = "status";
+  sendCamJsonLine(obj);
+}
+
+void MainWindow::camCapture()
+{
+  // Optional: push exposure/gain first
+  {
+    QJsonObject setObj;
+    setObj["cmd"] = "set";
+    setObj["exposure_us"] = ui->exposureUsSpin->value();
+    setObj["gain"] = ui->gainSpin->value();
+    sendCamJsonLine(setObj);
+  }
+
+  QJsonObject capObj;
+  capObj["cmd"] = "capture";
+  capObj["count"] = ui->countSpin->value();
+  capObj["format"] = ui->formatCombo->currentText().trimmed();
+  capObj["outdir"] = ui->outdirEdit->text().trimmed();
+  capObj["prefix"] = ui->prefixEdit->text().trimmed();
+  sendCamJsonLine(capObj);
 }

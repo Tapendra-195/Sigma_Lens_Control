@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>844</width>
-    <height>719</height>
+    <width>900</width>
+    <height>860</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -23,12 +23,12 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QFrame" name="frame">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
+ <property name="sizePolicy">
+  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <horstretch>0</horstretch>
+   <verstretch>0</verstretch>
+  </sizepolicy>
+ </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
@@ -38,15 +38,15 @@
       <layout class="QFormLayout" name="formLayout">
        <item row="0" column="0">
         <widget class="QFrame" name="frame_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
+ <property name="sizePolicy">
+  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+   <horstretch>0</horstretch>
+   <verstretch>0</verstretch>
+  </sizepolicy>
+ </property>
          <property name="minimumSize">
           <size>
-           <width>200</width>
+           <width>260</width>
            <height>0</height>
           </size>
          </property>
@@ -129,83 +129,83 @@
             </property>
            </widget>
           </item>
-        <!-- IMU -->
-        <item row="6" column="0">
-        <widget class="QLabel" name="label_accel">
-        <property name="text">
-        <string>Accel (m/s²):</string>
-        </property>
-        </widget>
-        </item>
-        <item row="6" column="1">
-        <widget class="QLabel" name="curAccelLabel">
-        <property name="text">
-        <string>Unknown</string>
-        </property>
-        </widget>
-        </item>
 
-        <item row="7" column="0">
-        <widget class="QLabel" name="label_gyro">
-        <property name="text">
-        <string>Gyro (dps):</string>
-        </property>
-        </widget>
-        </item>
-        <item row="7" column="1">
-        <widget class="QLabel" name="curGyroLabel">
-        <property name="text">
-        <string>Unknown</string>
-        </property>
-        </widget>
-        </item>
+          <!-- IMU -->
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_accel">
+            <property name="text">
+             <string>Accel (m/s²):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QLabel" name="curAccelLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
 
-        <!-- Magnetometer -->
-        <item row="8" column="0">
-        <widget class="QLabel" name="label_mag">
-        <property name="text">
-        <string>Mag (µT):</string>
-        </property>
-        </widget>
-        </item>
-        <item row="8" column="1">
-        <widget class="QLabel" name="curMagLabel">
-        <property name="text">
-        <string>Unknown</string>
-        </property>
-        </widget>
-        </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_gyro">
+            <property name="text">
+             <string>Gyro (dps):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QLabel" name="curGyroLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
 
-        <item row="9" column="0">
-        <widget class="QLabel" name="label_bmag">
-        <property name="text">
-        <string>|B| (µT):</string>
-        </property>
-        </widget>
-        </item>
-        <item row="9" column="1">
-        <widget class="QLabel" name="curBmagLabel">
-        <property name="text">
-        <string>Unknown</string>
-        </property>
-        </widget>
-        </item>
+          <!-- Magnetometer -->
+          <item row="8" column="0">
+           <widget class="QLabel" name="label_mag">
+            <property name="text">
+             <string>Mag (µT):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QLabel" name="curMagLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
 
-        <!-- Optional heading (if you later keep Hd:...) -->
-        <item row="10" column="0">
-        <widget class="QLabel" name="label_heading">
-        <property name="text">
-        <string>Heading (deg):</string>
-        </property>
-        </widget>
-        </item>
-        <item row="10" column="1">
-        <widget class="QLabel" name="curHeadingLabel">
-        <property name="text">
-        <string>Unknown</string>
-        </property>
-        </widget>
-        </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="label_bmag">
+            <property name="text">
+             <string>|B| (µT):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="QLabel" name="curBmagLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
+
+          <item row="10" column="0">
+           <widget class="QLabel" name="label_heading">
+            <property name="text">
+             <string>Heading (deg):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="1">
+           <widget class="QLabel" name="curHeadingLabel">
+            <property name="text">
+             <string>Unknown</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -597,6 +597,7 @@
       </layout>
      </widget>
     </item>
+
     <item>
      <widget class="QFrame" name="frame_3">
       <property name="frameShape">
@@ -662,6 +663,203 @@
       </layout>
      </widget>
     </item>
+
+    <!-- ===================================================== -->
+    <!-- NEW: ASI Camera Control Panel                          -->
+    <!-- ===================================================== -->
+    <item>
+     <widget class="QGroupBox" name="asiCameraGroupBox">
+      <property name="title">
+       <string>ASI Camera</string>
+      </property>
+      <layout class="QVBoxLayout" name="asiCameraVBox">
+       <item>
+        <layout class="QFormLayout" name="asiCameraForm">
+         <item row="0" column="0">
+          <widget class="QLabel" name="cameraEndpointLabel">
+           <property name="text">
+            <string>Endpoint</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="cameraEndpointEdit">
+           <property name="text">
+            <string>tcp:192.168.50.20:5001</string>
+           </property>
+          </widget>
+         </item>
+
+         <item row="1" column="0">
+          <widget class="QLabel" name="exposureUsLabel">
+           <property name="text">
+            <string>Exposure (µs)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="exposureUsSpin">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>60000000</number>
+           </property>
+           <property name="value">
+            <number>30000</number>
+           </property>
+          </widget>
+         </item>
+
+         <item row="2" column="0">
+          <widget class="QLabel" name="gainLabel">
+           <property name="text">
+            <string>Gain</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QSpinBox" name="gainSpin">
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>600</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+
+         <item row="3" column="0">
+          <widget class="QLabel" name="countLabel">
+           <property name="text">
+            <string>Count</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="countSpin">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+           <property name="maximum">
+            <number>10000</number>
+           </property>
+           <property name="value">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+
+         <item row="4" column="0">
+          <widget class="QLabel" name="formatLabel">
+           <property name="text">
+            <string>Format</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QComboBox" name="formatCombo">
+           <item>
+            <property name="text">
+             <string>tiff</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>png</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>jpeg</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+
+         <item row="5" column="0">
+          <widget class="QLabel" name="outdirLabel">
+           <property name="text">
+            <string>Outdir</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="outdirEdit">
+           <property name="text">
+            <string>captures/run01</string>
+           </property>
+          </widget>
+         </item>
+
+         <item row="6" column="0">
+          <widget class="QLabel" name="prefixLabel">
+           <property name="text">
+            <string>Prefix</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="prefixEdit">
+           <property name="text">
+            <string>cam0</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+
+       <item>
+        <layout class="QHBoxLayout" name="asiCameraButtonsHBox">
+         <item>
+          <widget class="QPushButton" name="camConnectButton">
+           <property name="text">
+            <string>Connect Camera</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="camStatusButton">
+           <property name="text">
+            <string>Status</string>
+           </property>
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="camCaptureButton">
+           <property name="text">
+            <string>Capture</string>
+           </property>
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="asiCamSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
     <item>
      <widget class="QPlainTextEdit" name="debugBox"/>
     </item>

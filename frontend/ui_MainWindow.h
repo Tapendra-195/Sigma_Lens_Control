@@ -15,8 +15,10 @@
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QFrame>
+#include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
@@ -24,6 +26,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -98,6 +101,28 @@ public:
     QSpacerItem *horizontalSpacer_2;
     QLabel *label_7;
     QPushButton *debugButton;
+    QGroupBox *asiCameraGroupBox;
+    QVBoxLayout *asiCameraVBox;
+    QFormLayout *asiCameraForm;
+    QLabel *cameraEndpointLabel;
+    QLineEdit *cameraEndpointEdit;
+    QLabel *exposureUsLabel;
+    QSpinBox *exposureUsSpin;
+    QLabel *gainLabel;
+    QSpinBox *gainSpin;
+    QLabel *countLabel;
+    QSpinBox *countSpin;
+    QLabel *formatLabel;
+    QComboBox *formatCombo;
+    QLabel *outdirLabel;
+    QLineEdit *outdirEdit;
+    QLabel *prefixLabel;
+    QLineEdit *prefixEdit;
+    QHBoxLayout *asiCameraButtonsHBox;
+    QPushButton *camConnectButton;
+    QPushButton *camStatusButton;
+    QPushButton *camCaptureButton;
+    QSpacerItem *asiCamSpacer;
     QPlainTextEdit *debugBox;
     QMenuBar *menubar;
     QMenu *menuAbout;
@@ -107,7 +132,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(844, 719);
+        MainWindow->resize(900, 860);
         MainWindow->setMinimumSize(QSize(600, 500));
         actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa = new QAction(MainWindow);
         actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa->setObjectName("actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa");
@@ -119,7 +144,7 @@ public:
         verticalLayout->setObjectName("verticalLayout");
         frame = new QFrame(centralwidget);
         frame->setObjectName("frame");
-        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Fixed);
+        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(frame->sizePolicy().hasHeightForWidth());
@@ -130,12 +155,12 @@ public:
         formLayout->setObjectName("formLayout");
         frame_2 = new QFrame(frame);
         frame_2->setObjectName("frame_2");
-        QSizePolicy sizePolicy1(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
+        QSizePolicy sizePolicy1(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Expanding);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(frame_2->sizePolicy().hasHeightForWidth());
         frame_2->setSizePolicy(sizePolicy1);
-        frame_2->setMinimumSize(QSize(200, 0));
+        frame_2->setMinimumSize(QSize(260, 0));
         frame_2->setFrameShape(QFrame::NoFrame);
         frame_2->setFrameShadow(QFrame::Plain);
         formLayout_2 = new QFormLayout(frame_2);
@@ -473,6 +498,126 @@ public:
 
         verticalLayout->addWidget(frame_3);
 
+        asiCameraGroupBox = new QGroupBox(centralwidget);
+        asiCameraGroupBox->setObjectName("asiCameraGroupBox");
+        asiCameraVBox = new QVBoxLayout(asiCameraGroupBox);
+        asiCameraVBox->setObjectName("asiCameraVBox");
+        asiCameraForm = new QFormLayout();
+        asiCameraForm->setObjectName("asiCameraForm");
+        cameraEndpointLabel = new QLabel(asiCameraGroupBox);
+        cameraEndpointLabel->setObjectName("cameraEndpointLabel");
+
+        asiCameraForm->setWidget(0, QFormLayout::ItemRole::LabelRole, cameraEndpointLabel);
+
+        cameraEndpointEdit = new QLineEdit(asiCameraGroupBox);
+        cameraEndpointEdit->setObjectName("cameraEndpointEdit");
+
+        asiCameraForm->setWidget(0, QFormLayout::ItemRole::FieldRole, cameraEndpointEdit);
+
+        exposureUsLabel = new QLabel(asiCameraGroupBox);
+        exposureUsLabel->setObjectName("exposureUsLabel");
+
+        asiCameraForm->setWidget(1, QFormLayout::ItemRole::LabelRole, exposureUsLabel);
+
+        exposureUsSpin = new QSpinBox(asiCameraGroupBox);
+        exposureUsSpin->setObjectName("exposureUsSpin");
+        exposureUsSpin->setMinimum(1);
+        exposureUsSpin->setMaximum(60000000);
+        exposureUsSpin->setValue(30000);
+
+        asiCameraForm->setWidget(1, QFormLayout::ItemRole::FieldRole, exposureUsSpin);
+
+        gainLabel = new QLabel(asiCameraGroupBox);
+        gainLabel->setObjectName("gainLabel");
+
+        asiCameraForm->setWidget(2, QFormLayout::ItemRole::LabelRole, gainLabel);
+
+        gainSpin = new QSpinBox(asiCameraGroupBox);
+        gainSpin->setObjectName("gainSpin");
+        gainSpin->setMinimum(0);
+        gainSpin->setMaximum(600);
+        gainSpin->setValue(50);
+
+        asiCameraForm->setWidget(2, QFormLayout::ItemRole::FieldRole, gainSpin);
+
+        countLabel = new QLabel(asiCameraGroupBox);
+        countLabel->setObjectName("countLabel");
+
+        asiCameraForm->setWidget(3, QFormLayout::ItemRole::LabelRole, countLabel);
+
+        countSpin = new QSpinBox(asiCameraGroupBox);
+        countSpin->setObjectName("countSpin");
+        countSpin->setMinimum(1);
+        countSpin->setMaximum(10000);
+        countSpin->setValue(1);
+
+        asiCameraForm->setWidget(3, QFormLayout::ItemRole::FieldRole, countSpin);
+
+        formatLabel = new QLabel(asiCameraGroupBox);
+        formatLabel->setObjectName("formatLabel");
+
+        asiCameraForm->setWidget(4, QFormLayout::ItemRole::LabelRole, formatLabel);
+
+        formatCombo = new QComboBox(asiCameraGroupBox);
+        formatCombo->addItem(QString());
+        formatCombo->addItem(QString());
+        formatCombo->addItem(QString());
+        formatCombo->setObjectName("formatCombo");
+
+        asiCameraForm->setWidget(4, QFormLayout::ItemRole::FieldRole, formatCombo);
+
+        outdirLabel = new QLabel(asiCameraGroupBox);
+        outdirLabel->setObjectName("outdirLabel");
+
+        asiCameraForm->setWidget(5, QFormLayout::ItemRole::LabelRole, outdirLabel);
+
+        outdirEdit = new QLineEdit(asiCameraGroupBox);
+        outdirEdit->setObjectName("outdirEdit");
+
+        asiCameraForm->setWidget(5, QFormLayout::ItemRole::FieldRole, outdirEdit);
+
+        prefixLabel = new QLabel(asiCameraGroupBox);
+        prefixLabel->setObjectName("prefixLabel");
+
+        asiCameraForm->setWidget(6, QFormLayout::ItemRole::LabelRole, prefixLabel);
+
+        prefixEdit = new QLineEdit(asiCameraGroupBox);
+        prefixEdit->setObjectName("prefixEdit");
+
+        asiCameraForm->setWidget(6, QFormLayout::ItemRole::FieldRole, prefixEdit);
+
+
+        asiCameraVBox->addLayout(asiCameraForm);
+
+        asiCameraButtonsHBox = new QHBoxLayout();
+        asiCameraButtonsHBox->setObjectName("asiCameraButtonsHBox");
+        camConnectButton = new QPushButton(asiCameraGroupBox);
+        camConnectButton->setObjectName("camConnectButton");
+
+        asiCameraButtonsHBox->addWidget(camConnectButton);
+
+        camStatusButton = new QPushButton(asiCameraGroupBox);
+        camStatusButton->setObjectName("camStatusButton");
+        camStatusButton->setEnabled(false);
+
+        asiCameraButtonsHBox->addWidget(camStatusButton);
+
+        camCaptureButton = new QPushButton(asiCameraGroupBox);
+        camCaptureButton->setObjectName("camCaptureButton");
+        camCaptureButton->setEnabled(false);
+
+        asiCameraButtonsHBox->addWidget(camCaptureButton);
+
+        asiCamSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+
+        asiCameraButtonsHBox->addItem(asiCamSpacer);
+
+
+        asiCameraVBox->addLayout(asiCameraButtonsHBox);
+
+
+        verticalLayout->addWidget(asiCameraGroupBox);
+
         debugBox = new QPlainTextEdit(centralwidget);
         debugBox->setObjectName("debugBox");
 
@@ -542,6 +687,24 @@ public:
         curStateLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
         label_7->setText(QCoreApplication::translate("MainWindow", "Debug", nullptr));
         debugButton->setText(QCoreApplication::translate("MainWindow", "|>", nullptr));
+        asiCameraGroupBox->setTitle(QCoreApplication::translate("MainWindow", "ASI Camera", nullptr));
+        cameraEndpointLabel->setText(QCoreApplication::translate("MainWindow", "Endpoint", nullptr));
+        cameraEndpointEdit->setText(QCoreApplication::translate("MainWindow", "tcp:192.168.50.20:5001", nullptr));
+        exposureUsLabel->setText(QCoreApplication::translate("MainWindow", "Exposure (\302\265s)", nullptr));
+        gainLabel->setText(QCoreApplication::translate("MainWindow", "Gain", nullptr));
+        countLabel->setText(QCoreApplication::translate("MainWindow", "Count", nullptr));
+        formatLabel->setText(QCoreApplication::translate("MainWindow", "Format", nullptr));
+        formatCombo->setItemText(0, QCoreApplication::translate("MainWindow", "tiff", nullptr));
+        formatCombo->setItemText(1, QCoreApplication::translate("MainWindow", "png", nullptr));
+        formatCombo->setItemText(2, QCoreApplication::translate("MainWindow", "jpeg", nullptr));
+
+        outdirLabel->setText(QCoreApplication::translate("MainWindow", "Outdir", nullptr));
+        outdirEdit->setText(QCoreApplication::translate("MainWindow", "captures/run01", nullptr));
+        prefixLabel->setText(QCoreApplication::translate("MainWindow", "Prefix", nullptr));
+        prefixEdit->setText(QCoreApplication::translate("MainWindow", "cam0", nullptr));
+        camConnectButton->setText(QCoreApplication::translate("MainWindow", "Connect Camera", nullptr));
+        camStatusButton->setText(QCoreApplication::translate("MainWindow", "Status", nullptr));
+        camCaptureButton->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
         menuAbout->setTitle(QCoreApplication::translate("MainWindow", "Help", nullptr));
     } // retranslateUi
 

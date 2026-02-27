@@ -7,6 +7,10 @@
 #include <QDebug>
 #include <QTcpSocket>
 #include <QIODevice>
+#include <QTimer>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <math.h>
 #include <algorithm>
 
@@ -77,8 +81,23 @@ private:
 
   void refreshPortList();
 
+    // --- ASI camera TCP ---
+  QTcpSocket *mCamSock = nullptr;
+  QByteArray mCamRxBuf;
+  bool mCamConnected = false;
+
+  bool openCameraTcp(const QString &endpoint);   // tcp:HOST:PORT
+  void closeCameraTcp();
+  void sendCamJsonLine(const QJsonObject &obj);
+  void setCameraUiEnabled(bool en);
+
   private slots:
     void onIoReadyRead();
     void updateTelemetryUi();
+    // --- Camera (ASI) ---
+    void camToggleConnect();
+    void camStatus();
+    void camCapture();
+    void onCamReadyRead();  
 };
 #endif // MAINWINDOW_H
