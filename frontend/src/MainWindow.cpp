@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 #include <QMessageBox>
 #include <QTimer>
+#include <QSettings>
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -9,10 +10,18 @@ MainWindow::MainWindow(QWidget *parent)
       ui(new Ui::MainWindow),
       mSerial(new QSerialPort(this)),
       mSock(new QTcpSocket(this)),
-      mCamSock(new QTcpSocket(this)),
-      io(nullptr)
+      io(nullptr),
+      mCamSock(new QTcpSocket(this))
 {
   ui->setupUi(this);
+
+  QSettings settings("HyperK", "SigmaControl");
+
+  ui->portComboBox->setEditText(
+    settings.value("lensEndpoint", "tcp:192.168.137.175:5000").toString());
+
+  ui->cameraEndpointEdit->setText(
+    settings.value("cameraEndpoint", "tcp:192.168.137.175:5001").toString());
 
   refreshPortList();
   reset();
@@ -97,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
   mTelemetryTimer = new QTimer(this);
   connect(mTelemetryTimer, &QTimer::timeout,
           this, &MainWindow::updateTelemetryUi);
-  mTelemetryTimer->start(500); // 500 ms = 2 Hz
+  mTelemetryTimer->start(5000); // 5000 ms = every 5 seconds
 
   // Camera defaults + disable until connected
   setCameraUiEnabled(false);
@@ -833,6 +842,9 @@ void MainWindow::camToggleConnect()
 {
   // We treat "connected" as mCamSock->isOpen()
   const bool isOpen = (mCamSock && mCamSock->isOpen());
+
+  QSettings settings("HyperK", "SigmaControl");
+  settings.setValue("cameraEndpoint", ui->cameraEndpointEdit->text());
 
   if (!isOpen)
   {
