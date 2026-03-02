@@ -93,6 +93,7 @@ private:
   int mCamStreamH = 0;
   QString mCamStreamOutDir;
   QString mCamStreamPrefix;
+  QString mCamLastFormat;
 
     // --- ASI camera TCP ---
   QTcpSocket *mCamSock = nullptr;

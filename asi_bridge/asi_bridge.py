@@ -193,34 +193,44 @@ class ASIBridge:
 
         return _ok(saved=saved, t_capture_s=round(time.time() - t0, 3))
 
-    def capture_stream(self, req, conn):
-        # Ensure camera is initialized
+    def capture_stream(self, req, conn: socket.socket):
         if self.cam is None:
             self.init_camera()
 
-        # Allow optional overrides
-        exposure_us = req.get("exposure_us", self.state["exposure_us"])
+        # Apply settings (reuse your existing helper so state stays consistent)
+        exp = req.get("exposure_us", self.state["exposure_us"])
         gain = req.get("gain", self.state["gain"])
+        self.apply_settings(exposure_us=exp, gain=gain)
 
-        # Reuse your existing settings path (keeps RAW16 enforced)
+        # Capture frame (may be bytes OR numpy array depending on zwoasi build)
+        image_data = self.cam.capture()
+
+        # Use the *actual* ROI format, not MaxWidth/MaxHeight
         try:
-            self.apply_settings(exposure_us=exposure_us, gain=gain)
-        except Exception as e:
-            return _err(f"Failed to apply settings: {e}")
+            w, h, binning, img_type = self.cam.get_roi_format()
+        except Exception:
+            w = int(self.info["MaxWidth"])
+            h = int(self.info["MaxHeight"])
+            img_type = asi.ASI_IMG_RAW16
 
-        # Capture one RAW16 full-frame
-        try:
-            image_data = self.cam.capture()  # bytes (RAW16 LE)
-        except Exception as e:
-            return _err(f"Capture failed: {e}")
+        W = int(w)
+        H = int(h)
+        expected_nbytes = W * H * 2  # RAW16
 
-        W = int(self.info["MaxWidth"])
-        H = int(self.info["MaxHeight"])
+        # Convert to raw bytes safely
+        if isinstance(image_data, (bytes, bytearray, memoryview)):
+            payload = bytes(image_data)
+        elif hasattr(image_data, "tobytes"):  # numpy array case
+            payload = image_data.tobytes(order="C")
+        else:
+            return _err(f"Unexpected capture() return type: {type(image_data)}")
 
-        # Sanity check payload size
-        expected = W * H * 2
-        if len(image_data) != expected:
-            return _err(f"Unexpected frame size: got {len(image_data)} bytes, expected {expected}")
+        got_nbytes = len(payload)
+        if got_nbytes != expected_nbytes:
+            return _err(
+                f"Unexpected frame size: got {got_nbytes} bytes, expected {expected_nbytes}",
+                got=got_nbytes, expected=expected_nbytes, w=W, h=H, img_type=str(img_type)
+            )
 
         header = {
             "ok": True,
@@ -228,16 +238,16 @@ class ASIBridge:
             "w": W,
             "h": H,
             "pixfmt": "raw16_le",
-            "nbytes": len(image_data),
+            "nbytes": expected_nbytes,
             "exposure_us": int(self.state["exposure_us"]),
             "gain": int(self.state["gain"]),
         }
 
-        # Send header then raw bytes
+        # Send header (one JSON line), then binary payload
         conn.sendall((json.dumps(header) + "\n").encode("utf-8"))
-        conn.sendall(image_data)
+        conn.sendall(payload)
 
-        # IMPORTANT: returning None prevents dispatcher from sending a JSON line
+        # IMPORTANT: return None so client_thread does not send a second JSON line
         return None
 
 

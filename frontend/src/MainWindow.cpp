@@ -3,6 +3,10 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QSettings>
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
+#include <QImageWriter>
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -800,11 +804,99 @@ void MainWindow::sendCamJsonLine(const QJsonObject &obj)
 
 void MainWindow::onCamReadyRead()
 {
-  if (!mCamSock)
-    return;
+  if (!mCamSock) return;
 
+  // Read everything available
   mCamRxBuf.append(mCamSock->readAll());
 
+  // ---------------------------
+  // State A: expecting binary payload (RAW16)
+  // ---------------------------
+  if (mCamExpectingBinary)
+  {
+    const int need = mCamExpectBytes - mCamBinBuf.size();
+    if (need > 0)
+    {
+      const int take = std::min(need, int(mCamRxBuf.size()));
+      if (take > 0)
+      {
+        mCamBinBuf.append(mCamRxBuf.left(take));
+        mCamRxBuf.remove(0, take);
+      }
+    }
+
+    // Not done yet
+    if (mCamBinBuf.size() < mCamExpectBytes)
+      return;
+
+    // Done: we have full frame
+    mCamExpectingBinary = false;
+
+    // Save on *PC* (frontend machine)
+    const QString outdir = mCamStreamOutDir.isEmpty() ? "captures" : mCamStreamOutDir;
+    QDir().mkpath(outdir);
+
+    const QString prefix = mCamStreamPrefix.isEmpty() ? "cam0" : mCamStreamPrefix;
+    QString fmt = mCamLastFormat.trimmed().toLower();
+    if (fmt == "jpg") fmt = "jpeg";
+    if (fmt.isEmpty()) fmt = "tiff";
+
+    const QString ts = QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss");
+    const QString fname = QString("%1/%2_%3.%4").arg(outdir, prefix, ts, fmt);
+
+    if (mCamStreamW <= 0 || mCamStreamH <= 0)
+    {
+      ui->statusbar->showMessage("Camera stream error: invalid frame dimensions");
+    }
+    else
+    {
+      // RAW16 little-endian -> QImage wrapper
+      const uchar *p = reinterpret_cast<const uchar*>(mCamBinBuf.constData());
+      const int bytesPerLine = mCamStreamW * 2;
+      QImage img(p, mCamStreamW, mCamStreamH, bytesPerLine, QImage::Format_Grayscale16);
+
+      bool ok = false;
+
+      // QImage is just a wrapper over mCamBinBuf memory; copy before writer uses it
+      QImage imgCopy = img.copy();
+
+      if (fmt == "tiff" || fmt == "tif" || fmt == "png")
+      {
+        QImageWriter w(fname, fmt.toUtf8());
+        ok = w.write(imgCopy);
+      }
+      else if (fmt == "jpeg" || fmt == "jpg")
+      {
+        // JPEG can’t store 16-bit grayscale reliably; downscale to 8-bit
+        QImage img8 = imgCopy.convertToFormat(QImage::Format_Grayscale8);
+        QImageWriter w(fname, "jpeg");
+        w.setQuality(95);
+        ok = w.write(img8);
+      }
+      else
+      {
+        // fallback
+        QImageWriter w(fname, "tiff");
+        ok = w.write(imgCopy);
+      }
+
+      ui->statusbar->showMessage(ok ? ("Camera: saved " + fname) : "Camera: save failed");
+    }
+
+    // Reset / re-enable UI
+    mCamBusy = false;
+    ui->camCaptureButton->setEnabled(mCamConnected);
+    ui->camStatusButton->setEnabled(mCamConnected);
+
+    // Clear buffer for next frame
+    mCamBinBuf.clear();
+    mCamExpectBytes = 0;
+    return;
+  }
+
+  // ---------------------------
+  // State B: parse JSON lines
+  // ---------------------------
   int nl = -1;
   while ((nl = mCamRxBuf.indexOf('\n')) >= 0)
   {
@@ -818,7 +910,6 @@ void MainWindow::onCamReadyRead()
     if (mDebug)
       appendDebugLine(QString("CAM << %1").arg(QString::fromUtf8(line)));
 
-    // Try parse JSON; if it fails, still show raw
     QJsonParseError err;
     QJsonDocument doc = QJsonDocument::fromJson(line, &err);
     if (err.error != QJsonParseError::NoError)
@@ -827,55 +918,75 @@ void MainWindow::onCamReadyRead()
       continue;
     }
 
-    // Minimal Phase-1 behavior: improved state handling
-    if (doc.isObject())
+    if (!doc.isObject())
+      continue;
+
+    QJsonObject obj = doc.object();
+
+    // ---------- error ----------
+    if (obj.contains("ok") && !obj.value("ok").toBool())
     {
-      QJsonObject obj = doc.object();
+      ui->statusbar->showMessage("Camera error: " + obj.value("error").toString());
 
-      // ---------- ERROR ----------
-      if (obj.contains("ok") && !obj["ok"].toBool())
-      {
-        QString err = obj.value("error").toString();
-        ui->statusbar->showMessage("Camera error: " + err);
-
-        mCamBusy = false;
-        ui->camCaptureButton->setEnabled(mCamConnected);
-        ui->camStatusButton->setEnabled(mCamConnected);
-        return;
-      }
-
-      // ---------- CAPTURE COMPLETE ----------
-      if (obj.contains("saved"))
-      {
-        ui->statusbar->showMessage("Camera: capture complete");
-
-        mCamBusy = false;
-        ui->camCaptureButton->setEnabled(mCamConnected);
-        ui->camStatusButton->setEnabled(mCamConnected);
-        return;
-      }
-
-      // ---------- GENERIC OK ----------
-      if (obj.contains("ok"))
-      {
-        ui->statusbar->showMessage(
-            QString("Camera: ok=%1")
-                .arg(obj["ok"].toBool() ? "true" : "false"));
-        return;
-      }
-
-      // ---------- STATUS ----------
-      if (obj.contains("status"))
-      {
-        ui->statusbar->showMessage("Camera status received");
-        return;
-      }
-
-      // ---------- FALLBACK ----------
-      ui->statusbar->showMessage("Camera response received");
+      mCamBusy = false;
+      ui->camCaptureButton->setEnabled(mCamConnected);
+      ui->camStatusButton->setEnabled(mCamConnected);
+      continue;
     }
+
+    // ---------- capture_stream header ----------
+    // Expect: {"ok":true,"cmd":"capture_stream","w":...,"h":...,"nbytes":...,"pixfmt":"raw16_le",...}
+    if (obj.value("cmd").toString() == "capture_stream")
+    {
+      mCamStreamW = obj.value("w").toInt();
+      mCamStreamH = obj.value("h").toInt();
+      mCamExpectBytes = obj.value("nbytes").toInt();
+
+      mCamStreamOutDir = ui->outdirEdit->text().trimmed();
+      mCamStreamPrefix = ui->prefixEdit->text().trimmed();
+      mCamLastFormat   = ui->formatCombo->currentText().trimmed();
+
+      if (mCamStreamW <= 0 || mCamStreamH <= 0 || mCamExpectBytes <= 0)
+      {
+        ui->statusbar->showMessage("Camera stream error: bad header");
+        mCamBusy = false;
+        ui->camCaptureButton->setEnabled(mCamConnected);
+        ui->camStatusButton->setEnabled(mCamConnected);
+        continue;
+      }
+
+      mCamBinBuf.clear();
+      mCamExpectingBinary = true;
+
+      ui->statusbar->showMessage(QString("Camera: receiving %1 bytes...").arg(mCamExpectBytes));
+
+      // Immediately fall through: if binary already arrived in mCamRxBuf, next readyRead will handle it
+      return;
+    }
+
+    // ---------- capture complete (non-stream mode) ----------
+    if (obj.contains("saved"))
+    {
+      ui->statusbar->showMessage("Camera: capture complete");
+
+      mCamBusy = false;
+      ui->camCaptureButton->setEnabled(mCamConnected);
+      ui->camStatusButton->setEnabled(mCamConnected);
+      continue;
+    }
+
+    // ---------- generic ok ----------
+    if (obj.contains("ok"))
+    {
+      ui->statusbar->showMessage(QString("Camera: ok=%1")
+        .arg(obj.value("ok").toBool() ? "true" : "false"));
+      continue;
+    }
+
+    ui->statusbar->showMessage("Camera response received");
   }
 }
+
 
 // =============================
 // ASI Camera (Phase 1) handlers
@@ -917,26 +1028,29 @@ void MainWindow::camCapture()
 {
   if (mCamBusy)
     return;
-  mCamBusy = true;
 
-  ui->camCaptureButton->setEnabled(false);
-  ui->camStatusButton->setEnabled(false);
-  ui->statusbar->showMessage("Camera: capturing...");
-
-  // Optional: push exposure/gain first
+  if (!mCamSock || !mCamSock->isOpen())
   {
-    QJsonObject setObj;
-    setObj["cmd"] = "set";
-    setObj["exposure_us"] = ui->exposureUsSpin->value();
-    setObj["gain"] = ui->gainSpin->value();
-    sendCamJsonLine(setObj);
+    ui->statusbar->showMessage("Camera: not connected");
+    return;
   }
 
-  QJsonObject capObj;
-  capObj["cmd"] = "capture";
-  capObj["count"] = ui->countSpin->value();
-  capObj["format"] = ui->formatCombo->currentText().trimmed();
-  capObj["outdir"] = ui->outdirEdit->text().trimmed();
-  capObj["prefix"] = ui->prefixEdit->text().trimmed();
-  sendCamJsonLine(capObj);
+  mCamBusy = true;
+  ui->camCaptureButton->setEnabled(false);
+  ui->camStatusButton->setEnabled(false);
+  ui->statusbar->showMessage("Camera: capture_stream...");
+
+  // Single command: request a streamed RAW16 frame
+  QJsonObject obj;
+  obj["cmd"] = "capture_stream";
+  obj["exposure_us"] = ui->exposureUsSpin->value();
+  obj["gain"] = ui->gainSpin->value();
+
+  // You can include these for filename creation on the PC side if you want
+  obj["outdir"] = ui->outdirEdit->text().trimmed();
+  obj["format"] = ui->formatCombo->currentText().trimmed();  // we'll use this locally
+  obj["outdir"] = ui->outdirEdit->text().trimmed();
+  obj["prefix"] = ui->prefixEdit->text().trimmed();
+
+  sendCamJsonLine(obj);
 }
