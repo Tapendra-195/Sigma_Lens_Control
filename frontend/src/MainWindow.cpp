@@ -18,10 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
   QSettings settings("HyperK", "SigmaControl");
 
   ui->portComboBox->setEditText(
-    settings.value("lensEndpoint", "tcp:192.168.137.175:5000").toString());
+      settings.value("lensEndpoint", "tcp:192.168.137.175:5000").toString());
 
   ui->cameraEndpointEdit->setText(
-    settings.value("cameraEndpoint", "tcp:192.168.137.175:5001").toString());
+      settings.value("cameraEndpoint", "tcp:192.168.137.175:5001").toString());
 
   refreshPortList();
   reset();
@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
                 ui->statusbar->showMessage("TCP disconnected");
                 allowControl(false); });
 
-    // ---- Camera UI connections ----
+  // ---- Camera UI connections ----
   connect(ui->camConnectButton, &QPushButton::clicked,
           this, &MainWindow::camToggleConnect);
   connect(ui->camStatusButton, &QPushButton::clicked,
@@ -87,20 +87,20 @@ MainWindow::MainWindow(QWidget *parent)
           this, &MainWindow::onCamReadyRead);
 
   connect(mCamSock, &QTcpSocket::errorOccurred,
-          this, [this](auto){
+          this, [this](auto)
+          {
             ui->statusbar->showMessage("Camera TCP error");
             mCamConnected = false;
             setCameraUiEnabled(false);
-            ui->camConnectButton->setText("Connect Camera");
-          });
+            ui->camConnectButton->setText("Connect Camera"); });
 
   connect(mCamSock, &QTcpSocket::disconnected,
-          this, [this](){
+          this, [this]()
+          {
             ui->statusbar->showMessage("Camera TCP disconnected");
             mCamConnected = false;
             setCameraUiEnabled(false);
-            ui->camConnectButton->setText("Connect Camera");
-          });
+            ui->camConnectButton->setText("Connect Camera"); });
 
   ui->portComboBox->setEditable(true);
   mTelemetryTimer = new QTimer(this);
@@ -170,14 +170,18 @@ void MainWindow::reset()
 
 void MainWindow::refreshPortList()
 {
-  QString currentText = ui->portComboBox->currentText();
+  QSettings settings("HyperK", "SigmaControl");
+
+  // Prefer the saved lens endpoint; fall back to whatever is currently in the box
+  QString saved = settings.value("lensEndpoint", "").toString().trimmed();
+  QString currentText = ui->portComboBox->currentText().trimmed();
+  QString restoreText = !saved.isEmpty() ? saved : currentText;
 
   ui->portComboBox->clear();
 
   const auto ports = QSerialPortInfo::availablePorts();
   for (const QSerialPortInfo &port : ports)
   {
-
     QString desc = port.description().toLower();
     QString manufacturer = port.manufacturer().toLower();
 
@@ -187,13 +191,16 @@ void MainWindow::refreshPortList()
     }
   }
 
-  // Optional helper entry for TCP mode
-  ui->portComboBox->addItem("tcp:192.168.50.2:5000");
+  // Keep the combo editable so arbitrary tcp:HOST:PORT works
+  ui->portComboBox->setEditable(true);
 
-  // Restore whatever user had typed
-  if (!currentText.isEmpty())
+  // If the restoreText isn't already one of the items, add it so it appears in the dropdown history
+  if (!restoreText.isEmpty())
   {
-    ui->portComboBox->setEditText(currentText);
+    int idx = ui->portComboBox->findText(restoreText);
+    if (idx < 0)
+      ui->portComboBox->addItem(restoreText);
+    ui->portComboBox->setEditText(restoreText);
   }
 }
 
@@ -201,6 +208,8 @@ void MainWindow::toggleConnect()
 {
   if (ui->connectButton->text() == "Connect")
   {
+    QSettings settings("HyperK", "SigmaControl");
+    settings.setValue("lensEndpoint", ui->portComboBox->currentText().trimmed());
     bool success = openSerialPort();
     if (success)
     {
@@ -391,18 +400,19 @@ void MainWindow::appendDebugLine(const QString &line, int maxLines)
 
 QString MainWindow::connectionLabel() const
 {
-    if (mSock && mSock->isOpen())
-        return "TCP";
+  if (mSock && mSock->isOpen())
+    return "TCP";
 
-    if (mSerial && mSerial->isOpen())
-        return QString("Serial %1").arg(mSerial->portName());
+  if (mSerial && mSerial->isOpen())
+    return QString("Serial %1").arg(mSerial->portName());
 
-    return "Disconnected";
+  return "Disconnected";
 }
 
 void MainWindow::updateTelemetryUi()
 {
-  if (!io || !io->isOpen()) return;
+  if (!io || !io->isOpen())
+    return;
   if (!mHaveTelemetry)
     return;
 
@@ -579,24 +589,26 @@ void MainWindow::handleMessage(QString msg)
 
 void MainWindow::onIoReadyRead()
 {
-    if (!io) return;
+  if (!io)
+    return;
 
-    QByteArray data = io->readAll();
-    if (mDebug) {
-        appendDebugLine("<< " + QString::fromUtf8(data));
-    }
+  QByteArray data = io->readAll();
+  if (mDebug)
+  {
+    appendDebugLine("<< " + QString::fromUtf8(data));
+  }
 
-    rxBuf += QString::fromUtf8(data);
+  rxBuf += QString::fromUtf8(data);
 
-    int idx;
-    while ((idx = rxBuf.indexOf('\n')) >= 0) {
-        QString line = rxBuf.left(idx).trimmed();
-        rxBuf.remove(0, idx + 1);
-        if (!line.isEmpty())
-            handleMessage(line);
-    }
+  int idx;
+  while ((idx = rxBuf.indexOf('\n')) >= 0)
+  {
+    QString line = rxBuf.left(idx).trimmed();
+    rxBuf.remove(0, idx + 1);
+    if (!line.isEmpty())
+      handleMessage(line);
+  }
 }
-
 
 void MainWindow::showAbout()
 {
@@ -685,13 +697,13 @@ void MainWindow::decrementFocus()
 
 void MainWindow::handleSerialError(QSerialPort::SerialPortError error)
 {
-    if (error == QSerialPort::ResourceError)
-    {
-        QMessageBox::critical(this, "Error",
-                              "Either the Lens or Teensy is Disconnected. Click Refresh");
-        closeSerialPort();
-        reset();
-    }
+  if (error == QSerialPort::ResourceError)
+  {
+    QMessageBox::critical(this, "Error",
+                          "Either the Lens or Teensy is Disconnected. Click Refresh");
+    closeSerialPort();
+    reset();
+  }
 }
 
 void MainWindow::setCameraUiEnabled(bool en)
@@ -788,7 +800,8 @@ void MainWindow::sendCamJsonLine(const QJsonObject &obj)
 
 void MainWindow::onCamReadyRead()
 {
-  if (!mCamSock) return;
+  if (!mCamSock)
+    return;
 
   mCamRxBuf.append(mCamSock->readAll());
 
@@ -814,22 +827,52 @@ void MainWindow::onCamReadyRead()
       continue;
     }
 
-    // Minimal Phase-1 behavior: just surface a short status message
+    // Minimal Phase-1 behavior: improved state handling
     if (doc.isObject())
     {
       QJsonObject obj = doc.object();
+
+      // ---------- ERROR ----------
+      if (obj.contains("ok") && !obj["ok"].toBool())
+      {
+        QString err = obj.value("error").toString();
+        ui->statusbar->showMessage("Camera error: " + err);
+
+        mCamBusy = false;
+        ui->camCaptureButton->setEnabled(mCamConnected);
+        ui->camStatusButton->setEnabled(mCamConnected);
+        return;
+      }
+
+      // ---------- CAPTURE COMPLETE ----------
+      if (obj.contains("saved"))
+      {
+        ui->statusbar->showMessage("Camera: capture complete");
+
+        mCamBusy = false;
+        ui->camCaptureButton->setEnabled(mCamConnected);
+        ui->camStatusButton->setEnabled(mCamConnected);
+        return;
+      }
+
+      // ---------- GENERIC OK ----------
       if (obj.contains("ok"))
       {
-        ui->statusbar->showMessage(QString("Camera: ok=%1").arg(obj["ok"].toBool() ? "true" : "false"));
+        ui->statusbar->showMessage(
+            QString("Camera: ok=%1")
+                .arg(obj["ok"].toBool() ? "true" : "false"));
+        return;
       }
-      else if (obj.contains("status"))
+
+      // ---------- STATUS ----------
+      if (obj.contains("status"))
       {
         ui->statusbar->showMessage("Camera status received");
+        return;
       }
-      else
-      {
-        ui->statusbar->showMessage("Camera response received");
-      }
+
+      // ---------- FALLBACK ----------
+      ui->statusbar->showMessage("Camera response received");
     }
   }
 }
@@ -872,6 +915,14 @@ void MainWindow::camStatus()
 
 void MainWindow::camCapture()
 {
+  if (mCamBusy)
+    return;
+  mCamBusy = true;
+
+  ui->camCaptureButton->setEnabled(false);
+  ui->camStatusButton->setEnabled(false);
+  ui->statusbar->showMessage("Camera: capturing...");
+
   // Optional: push exposure/gain first
   {
     QJsonObject setObj;

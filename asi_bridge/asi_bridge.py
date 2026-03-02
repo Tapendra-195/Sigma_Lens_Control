@@ -193,7 +193,55 @@ class ASIBridge:
 
         return _ok(saved=saved, t_capture_s=round(time.time() - t0, 3))
 
-    def handle_request(self, req: dict) -> dict:
+    def capture_stream(self, req, conn):
+        # Ensure camera is initialized
+        if self.cam is None:
+            self.init_camera()
+
+        # Allow optional overrides
+        exposure_us = req.get("exposure_us", self.state["exposure_us"])
+        gain = req.get("gain", self.state["gain"])
+
+        # Reuse your existing settings path (keeps RAW16 enforced)
+        try:
+            self.apply_settings(exposure_us=exposure_us, gain=gain)
+        except Exception as e:
+            return _err(f"Failed to apply settings: {e}")
+
+        # Capture one RAW16 full-frame
+        try:
+            image_data = self.cam.capture()  # bytes (RAW16 LE)
+        except Exception as e:
+            return _err(f"Capture failed: {e}")
+
+        W = int(self.info["MaxWidth"])
+        H = int(self.info["MaxHeight"])
+
+        # Sanity check payload size
+        expected = W * H * 2
+        if len(image_data) != expected:
+            return _err(f"Unexpected frame size: got {len(image_data)} bytes, expected {expected}")
+
+        header = {
+            "ok": True,
+            "cmd": "capture_stream",
+            "w": W,
+            "h": H,
+            "pixfmt": "raw16_le",
+            "nbytes": len(image_data),
+            "exposure_us": int(self.state["exposure_us"]),
+            "gain": int(self.state["gain"]),
+        }
+
+        # Send header then raw bytes
+        conn.sendall((json.dumps(header) + "\n").encode("utf-8"))
+        conn.sendall(image_data)
+
+        # IMPORTANT: returning None prevents dispatcher from sending a JSON line
+        return None
+
+
+    def handle_request(self, req: dict, conn: socket.socket):
         cmd = (req.get("cmd") or "").strip().lower()
         if not cmd:
             return _err("Missing cmd")
@@ -219,6 +267,12 @@ class ASIBridge:
                     prefix=req.get("prefix", None),
                     fmt=req.get("format", None),
                 )
+            except Exception as e:
+                return _err(f"Capture failed: {e}")
+            
+        if cmd == "capture_stream":
+            try:
+                return self.capture_stream(req, conn)
             except Exception as e:
                 return _err(f"Capture failed: {e}")
 
@@ -274,9 +328,11 @@ def client_thread(bridge: ASIBridge, conn: socket.socket, addr):
 
                 # serialize camera access
                 with bridge.lock:
-                    resp = bridge.handle_request(req)
+                    resp = bridge.handle_request(req, conn)
 
-                conn.sendall((json.dumps(resp) + "\n").encode("utf-8"))
+                # Some commands (e.g. capture_stream) may write directly to conn and return None
+                if resp is not None:
+                    conn.sendall((json.dumps(resp) + "\n").encode("utf-8"))
 
     except socket.timeout:
         pass

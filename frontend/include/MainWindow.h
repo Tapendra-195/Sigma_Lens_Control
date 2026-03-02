@@ -11,6 +11,9 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
+#include <QFile>
+#include <QDir>
+#include <QDateTime>
 #include <math.h>
 #include <algorithm>
 
@@ -81,9 +84,20 @@ private:
 
   void refreshPortList();
 
+  // Streaming receive state (for capture_stream)
+  bool mCamExpectingBinary = false;
+  int  mCamExpectBytes = 0;
+  QByteArray mCamBinBuf;
+
+  int mCamStreamW = 0;
+  int mCamStreamH = 0;
+  QString mCamStreamOutDir;
+  QString mCamStreamPrefix;
+
     // --- ASI camera TCP ---
   QTcpSocket *mCamSock = nullptr;
   QByteArray mCamRxBuf;
+  bool mCamBusy = false;
   bool mCamConnected = false;
 
   bool openCameraTcp(const QString &endpoint);   // tcp:HOST:PORT
