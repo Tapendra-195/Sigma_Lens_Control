@@ -1,11 +1,3 @@
-* text=auto
-
-*.cpp text
-*.h text
-*.ui text
-*.py text
-*.pro text
-*.gitignore text
 
 # Qt build artifacts
 *.o
