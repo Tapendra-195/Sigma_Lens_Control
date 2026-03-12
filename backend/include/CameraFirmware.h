@@ -56,23 +56,25 @@ class CameraFirmware
   void attachImuSensor(ImuSensor* imu);
   void attachMagSensor(MagSensor* mag);
 
+  // NEW: delayed sensor reinit support
+  void scheduleSensorReinit(unsigned long delayMs = 100);
+  void reinitSensors();
+
+
  private:
   static void lensDetectISR();
   void handleFrontEndInput();
   void pollLens(); //Sends polling signal to lens
   void processByte();//int read, byte *buffer, int &position, int direction);
   void updateFSM();
-    //void sendMessage03();
-    //void sendMessage04();
-
+  // check logic VCC for sensor power
+  void ensureLogicRailForSensors();
   static RingBuffer<EVENT, 20> mInputBuffer;
     
   // Timing parameters for a 60 Hz pulse
-  // Total period = 1/60 sec ≈ 16667 microseconds
-  // Low pulse duration is 63.4 microseconds (rounded to 64 for simplicity)
-  const unsigned long totalPeriod = 16667UL;   // Total period in microseconds
-  const unsigned long lowDuration   = 64UL;//64UL;      // Duration of the LOW pulse in microseconds
-  const unsigned long highDuration  = totalPeriod - lowDuration; // Remaining HIGH time
+  const unsigned long totalPeriod = 16667UL;
+  const unsigned long lowDuration = 64UL;
+  const unsigned long highDuration = totalPeriod - lowDuration;
 
   unsigned long lastPulseTime = 0;
 
@@ -88,9 +90,9 @@ class CameraFirmware
   bool mPollLens = false; //Indicates if the firmware should send polling signal to the lens
 
   unsigned long lastStatusMs = 0;
-  const unsigned long statusPeriodMs = 2000;  // 0.5 Hz (adjust as you like)
+  const unsigned long statusPeriodMs = 2000;  // 0.5 Hz
 
-
+  // NEW: sensor brownout/reinit handling
+  bool mSensorsNeedReinit = false;
+  unsigned long mSensorReinitAtMs = 0;
 };
-
-

@@ -3,6 +3,7 @@
 
 void ShutDownState::enter(CameraFirmware& firmware)
 {
+  Serial.println("DBG: ENTER ShutDown");
   firmware.sendMessage(off0A, sizeof(off0A)); //Changes Aperture to some const value.
   firmware.lensStatus.currentState = "ShutDown";
 }

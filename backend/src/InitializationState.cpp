@@ -3,6 +3,7 @@
 
 void InitializationState::enter(CameraFirmware& firmware)
 {
+  Serial.println("DBG: ENTER Initialization");
   //Does the handshake, expects ACK from lens. We're ignoring that. We'll send the pulse, but won't check if there is ACK.
   //Don't want to add more states.
   delayMicroseconds(6);

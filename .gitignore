@@ -1,3 +1,12 @@
+* text=auto
+
+*.cpp text
+*.h text
+*.ui text
+*.py text
+*.pro text
+*.gitignore text
+
 # Qt build artifacts
 *.o
 *.obj
@@ -22,3 +31,8 @@ debug/
 Makefile
 Makefile.*
 frontend/Makefile*
+frontend/captures/
+*.raw16
+*.tiff
+*.tif
+*_preview.png

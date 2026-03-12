@@ -12,632 +12,528 @@
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
 #include <QtWidgets/QApplication>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QFormLayout>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QFrame>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QProgressBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QSlider>
-#include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTabWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "DevicePanel.h"
 
 QT_BEGIN_NAMESPACE
 
 class Ui_MainWindow
 {
 public:
-    QAction *actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa;
     QAction *actionAbout;
     QWidget *centralwidget;
-    QVBoxLayout *verticalLayout;
-    QFrame *frame;
-    QFormLayout *formLayout;
-    QFrame *frame_2;
-    QFormLayout *formLayout_2;
-    QLabel *label_2;
-    QLabel *curFocusLabel;
-    QLabel *label_3;
-    QLabel *curApertureLabel;
-    QLabel *label_temp;
-    QLabel *curTempLabel;
-    QLabel *label_pressure;
-    QLabel *curPressureLabel;
-    QLabel *label_humidity;
-    QLabel *curHumidityLabel;
-    QLabel *label_accel;
-    QLabel *curAccelLabel;
-    QLabel *label_gyro;
-    QLabel *curGyroLabel;
-    QLabel *label_mag;
-    QLabel *curMagLabel;
-    QLabel *label_bmag;
-    QLabel *curBmagLabel;
-    QLabel *label_heading;
-    QLabel *curHeadingLabel;
-    QFrame *frame_7;
-    QHBoxLayout *horizontalLayout_3;
-    QSpacerItem *horizontalSpacer;
-    QPushButton *powerButton;
-    QFrame *frame_6;
-    QFormLayout *formLayout_4;
-    QLabel *label;
-    QComboBox *portComboBox;
-    QPushButton *refreshButton;
-    QPushButton *connectButton;
-    QLabel *label_6;
-    QLabel *cameraIDLabel;
-    QFrame *frame_5;
-    QFormLayout *formLayout_3;
-    QLabel *apertureValueLabel;
-    QLabel *label_4;
-    QFrame *frame_9;
-    QHBoxLayout *horizontalLayout_4;
-    QPushButton *decrementApertureButton;
-    QSlider *apertureValueSlider;
-    QPushButton *incrementApertureButton;
-    QPushButton *setApertureButton;
-    QLabel *focusValueLabel;
-    QLabel *label_5;
-    QFrame *frame_4;
-    QHBoxLayout *horizontalLayout_2;
-    QPushButton *decrementFocusButton;
-    QSlider *focusValueSlider;
-    QPushButton *incrementFocusButton;
-    QPushButton *setFocusButton;
-    QFrame *frame_3;
-    QHBoxLayout *horizontalLayout;
-    QLabel *label_8;
-    QLabel *curStateLabel;
-    QSpacerItem *horizontalSpacer_2;
-    QLabel *label_7;
-    QPushButton *debugButton;
-    QGroupBox *asiCameraGroupBox;
-    QVBoxLayout *asiCameraVBox;
-    QFormLayout *asiCameraForm;
-    QLabel *cameraEndpointLabel;
-    QLineEdit *cameraEndpointEdit;
-    QLabel *exposureUsLabel;
-    QSpinBox *exposureUsSpin;
-    QLabel *gainLabel;
-    QSpinBox *gainSpin;
-    QLabel *countLabel;
-    QSpinBox *countSpin;
-    QLabel *formatLabel;
-    QComboBox *formatCombo;
-    QLabel *outdirLabel;
-    QLineEdit *outdirEdit;
-    QLabel *prefixLabel;
-    QLineEdit *prefixEdit;
-    QHBoxLayout *asiCameraButtonsHBox;
-    QPushButton *camConnectButton;
-    QPushButton *camStatusButton;
-    QPushButton *camCaptureButton;
-    QSpacerItem *asiCamSpacer;
-    QPlainTextEdit *debugBox;
+    QVBoxLayout *verticalLayout_root;
+    QHBoxLayout *horizontalLayout_top;
+    QGroupBox *group_status;
+    QGridLayout *grid_status;
+    QLabel *label_statusHeader;
+    QLabel *label_col1;
+    QLabel *label_col2;
+    QLabel *label_col3;
+    QLabel *label_col4;
+    QLabel *label_col5;
+    QLabel *label_col6;
+    QLabel *label_col7;
+    QLabel *label_col8;
+    QLabel *label_lensRow;
+    QFrame *led_lens1;
+    QFrame *led_lens2;
+    QFrame *led_lens3;
+    QFrame *led_lens4;
+    QFrame *led_lens5;
+    QFrame *led_lens6;
+    QFrame *led_lens7;
+    QFrame *led_lens8;
+    QLabel *label_camRow;
+    QFrame *led_cam1;
+    QFrame *led_cam2;
+    QFrame *led_cam3;
+    QFrame *led_cam4;
+    QFrame *led_cam5;
+    QFrame *led_cam6;
+    QFrame *led_cam7;
+    QFrame *led_cam8;
+    QGroupBox *group_global;
+    QHBoxLayout *horizontalLayout_global;
+    QCheckBox *check_onlyConnected;
+    QCheckBox *check_skipBusy;
+    QPushButton *btn_applyCameraToAll;
+    QPushButton *btn_applyLensToAll;
+    QPushButton *btn_applyAllToAll;
+    QPushButton *btn_captureAll;
+    QProgressBar *progress_captureAll;
+    QLabel *label_captureAllStatus;
+    QSplitter *splitter_main;
+    QTabWidget *tabWidget_devices;
+    QWidget *tab_slot1;
+    QVBoxLayout *verticalLayout_slot1;
+    DevicePanel *devicePanel1;
+    QWidget *tab_slot2;
+    QVBoxLayout *verticalLayout_slot2;
+    DevicePanel *devicePanel2;
+    QWidget *tab_slot3;
+    QVBoxLayout *verticalLayout_slot3;
+    DevicePanel *devicePanel3;
+    QWidget *tab_slot4;
+    QVBoxLayout *verticalLayout_slot4;
+    DevicePanel *devicePanel4;
+    QWidget *tab_slot5;
+    QVBoxLayout *verticalLayout_slot5;
+    DevicePanel *devicePanel5;
+    QWidget *tab_slot6;
+    QVBoxLayout *verticalLayout_slot6;
+    DevicePanel *devicePanel6;
+    QWidget *tab_slot7;
+    QVBoxLayout *verticalLayout_slot7;
+    DevicePanel *devicePanel7;
+    QWidget *tab_slot8;
+    QVBoxLayout *verticalLayout_slot8;
+    DevicePanel *devicePanel8;
+    QWidget *widget_preview;
+    QVBoxLayout *verticalLayout_preview;
+    QGroupBox *group_preview;
+    QVBoxLayout *verticalLayout_previewBox;
+    QLabel *label_mainPreview;
+    QGroupBox *group_debug;
+    QVBoxLayout *verticalLayout_debugBox;
+    QPlainTextEdit *text_mainDebug;
     QMenuBar *menubar;
-    QMenu *menuAbout;
+    QMenu *menuHelp;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
-        MainWindow->resize(900, 860);
-        MainWindow->setMinimumSize(QSize(600, 500));
-        actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa = new QAction(MainWindow);
-        actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa->setObjectName("actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa");
+        MainWindow->resize(1200, 850);
         actionAbout = new QAction(MainWindow);
         actionAbout->setObjectName("actionAbout");
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName("centralwidget");
-        verticalLayout = new QVBoxLayout(centralwidget);
-        verticalLayout->setObjectName("verticalLayout");
-        frame = new QFrame(centralwidget);
-        frame->setObjectName("frame");
-        QSizePolicy sizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(frame->sizePolicy().hasHeightForWidth());
-        frame->setSizePolicy(sizePolicy);
-        frame->setFrameShape(QFrame::NoFrame);
-        frame->setFrameShadow(QFrame::Raised);
-        formLayout = new QFormLayout(frame);
-        formLayout->setObjectName("formLayout");
-        frame_2 = new QFrame(frame);
-        frame_2->setObjectName("frame_2");
-        QSizePolicy sizePolicy1(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Expanding);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(frame_2->sizePolicy().hasHeightForWidth());
-        frame_2->setSizePolicy(sizePolicy1);
-        frame_2->setMinimumSize(QSize(260, 0));
-        frame_2->setFrameShape(QFrame::NoFrame);
-        frame_2->setFrameShadow(QFrame::Plain);
-        formLayout_2 = new QFormLayout(frame_2);
-        formLayout_2->setObjectName("formLayout_2");
-        label_2 = new QLabel(frame_2);
-        label_2->setObjectName("label_2");
+        verticalLayout_root = new QVBoxLayout(centralwidget);
+        verticalLayout_root->setSpacing(8);
+        verticalLayout_root->setObjectName("verticalLayout_root");
+        verticalLayout_root->setContentsMargins(8, 8, 8, 8);
+        horizontalLayout_top = new QHBoxLayout();
+        horizontalLayout_top->setSpacing(10);
+        horizontalLayout_top->setObjectName("horizontalLayout_top");
+        group_status = new QGroupBox(centralwidget);
+        group_status->setObjectName("group_status");
+        grid_status = new QGridLayout(group_status);
+        grid_status->setObjectName("grid_status");
+        grid_status->setHorizontalSpacing(6);
+        grid_status->setVerticalSpacing(4);
+        label_statusHeader = new QLabel(group_status);
+        label_statusHeader->setObjectName("label_statusHeader");
 
-        formLayout_2->setWidget(0, QFormLayout::ItemRole::LabelRole, label_2);
+        grid_status->addWidget(label_statusHeader, 0, 0, 1, 1);
 
-        curFocusLabel = new QLabel(frame_2);
-        curFocusLabel->setObjectName("curFocusLabel");
+        label_col1 = new QLabel(group_status);
+        label_col1->setObjectName("label_col1");
+        label_col1->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(0, QFormLayout::ItemRole::FieldRole, curFocusLabel);
+        grid_status->addWidget(label_col1, 0, 1, 1, 1);
 
-        label_3 = new QLabel(frame_2);
-        label_3->setObjectName("label_3");
+        label_col2 = new QLabel(group_status);
+        label_col2->setObjectName("label_col2");
+        label_col2->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(2, QFormLayout::ItemRole::LabelRole, label_3);
+        grid_status->addWidget(label_col2, 0, 2, 1, 1);
 
-        curApertureLabel = new QLabel(frame_2);
-        curApertureLabel->setObjectName("curApertureLabel");
+        label_col3 = new QLabel(group_status);
+        label_col3->setObjectName("label_col3");
+        label_col3->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(2, QFormLayout::ItemRole::FieldRole, curApertureLabel);
+        grid_status->addWidget(label_col3, 0, 3, 1, 1);
 
-        label_temp = new QLabel(frame_2);
-        label_temp->setObjectName("label_temp");
+        label_col4 = new QLabel(group_status);
+        label_col4->setObjectName("label_col4");
+        label_col4->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(3, QFormLayout::ItemRole::LabelRole, label_temp);
+        grid_status->addWidget(label_col4, 0, 4, 1, 1);
 
-        curTempLabel = new QLabel(frame_2);
-        curTempLabel->setObjectName("curTempLabel");
+        label_col5 = new QLabel(group_status);
+        label_col5->setObjectName("label_col5");
+        label_col5->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(3, QFormLayout::ItemRole::FieldRole, curTempLabel);
+        grid_status->addWidget(label_col5, 0, 5, 1, 1);
 
-        label_pressure = new QLabel(frame_2);
-        label_pressure->setObjectName("label_pressure");
+        label_col6 = new QLabel(group_status);
+        label_col6->setObjectName("label_col6");
+        label_col6->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(4, QFormLayout::ItemRole::LabelRole, label_pressure);
+        grid_status->addWidget(label_col6, 0, 6, 1, 1);
 
-        curPressureLabel = new QLabel(frame_2);
-        curPressureLabel->setObjectName("curPressureLabel");
+        label_col7 = new QLabel(group_status);
+        label_col7->setObjectName("label_col7");
+        label_col7->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(4, QFormLayout::ItemRole::FieldRole, curPressureLabel);
+        grid_status->addWidget(label_col7, 0, 7, 1, 1);
 
-        label_humidity = new QLabel(frame_2);
-        label_humidity->setObjectName("label_humidity");
+        label_col8 = new QLabel(group_status);
+        label_col8->setObjectName("label_col8");
+        label_col8->setAlignment(Qt::AlignCenter);
 
-        formLayout_2->setWidget(5, QFormLayout::ItemRole::LabelRole, label_humidity);
+        grid_status->addWidget(label_col8, 0, 8, 1, 1);
 
-        curHumidityLabel = new QLabel(frame_2);
-        curHumidityLabel->setObjectName("curHumidityLabel");
+        label_lensRow = new QLabel(group_status);
+        label_lensRow->setObjectName("label_lensRow");
 
-        formLayout_2->setWidget(5, QFormLayout::ItemRole::FieldRole, curHumidityLabel);
+        grid_status->addWidget(label_lensRow, 1, 0, 1, 1);
 
-        label_accel = new QLabel(frame_2);
-        label_accel->setObjectName("label_accel");
+        led_lens1 = new QFrame(group_status);
+        led_lens1->setObjectName("led_lens1");
+        led_lens1->setMinimumSize(QSize(14, 14));
+        led_lens1->setMaximumSize(QSize(14, 14));
+        led_lens1->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(6, QFormLayout::ItemRole::LabelRole, label_accel);
+        grid_status->addWidget(led_lens1, 1, 1, 1, 1);
 
-        curAccelLabel = new QLabel(frame_2);
-        curAccelLabel->setObjectName("curAccelLabel");
+        led_lens2 = new QFrame(group_status);
+        led_lens2->setObjectName("led_lens2");
+        led_lens2->setMinimumSize(QSize(14, 14));
+        led_lens2->setMaximumSize(QSize(14, 14));
+        led_lens2->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(6, QFormLayout::ItemRole::FieldRole, curAccelLabel);
+        grid_status->addWidget(led_lens2, 1, 2, 1, 1);
 
-        label_gyro = new QLabel(frame_2);
-        label_gyro->setObjectName("label_gyro");
+        led_lens3 = new QFrame(group_status);
+        led_lens3->setObjectName("led_lens3");
+        led_lens3->setMinimumSize(QSize(14, 14));
+        led_lens3->setMaximumSize(QSize(14, 14));
+        led_lens3->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(7, QFormLayout::ItemRole::LabelRole, label_gyro);
+        grid_status->addWidget(led_lens3, 1, 3, 1, 1);
 
-        curGyroLabel = new QLabel(frame_2);
-        curGyroLabel->setObjectName("curGyroLabel");
+        led_lens4 = new QFrame(group_status);
+        led_lens4->setObjectName("led_lens4");
+        led_lens4->setMinimumSize(QSize(14, 14));
+        led_lens4->setMaximumSize(QSize(14, 14));
+        led_lens4->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(7, QFormLayout::ItemRole::FieldRole, curGyroLabel);
+        grid_status->addWidget(led_lens4, 1, 4, 1, 1);
 
-        label_mag = new QLabel(frame_2);
-        label_mag->setObjectName("label_mag");
+        led_lens5 = new QFrame(group_status);
+        led_lens5->setObjectName("led_lens5");
+        led_lens5->setMinimumSize(QSize(14, 14));
+        led_lens5->setMaximumSize(QSize(14, 14));
+        led_lens5->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(8, QFormLayout::ItemRole::LabelRole, label_mag);
+        grid_status->addWidget(led_lens5, 1, 5, 1, 1);
 
-        curMagLabel = new QLabel(frame_2);
-        curMagLabel->setObjectName("curMagLabel");
+        led_lens6 = new QFrame(group_status);
+        led_lens6->setObjectName("led_lens6");
+        led_lens6->setMinimumSize(QSize(14, 14));
+        led_lens6->setMaximumSize(QSize(14, 14));
+        led_lens6->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(8, QFormLayout::ItemRole::FieldRole, curMagLabel);
+        grid_status->addWidget(led_lens6, 1, 6, 1, 1);
 
-        label_bmag = new QLabel(frame_2);
-        label_bmag->setObjectName("label_bmag");
+        led_lens7 = new QFrame(group_status);
+        led_lens7->setObjectName("led_lens7");
+        led_lens7->setMinimumSize(QSize(14, 14));
+        led_lens7->setMaximumSize(QSize(14, 14));
+        led_lens7->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(9, QFormLayout::ItemRole::LabelRole, label_bmag);
+        grid_status->addWidget(led_lens7, 1, 7, 1, 1);
 
-        curBmagLabel = new QLabel(frame_2);
-        curBmagLabel->setObjectName("curBmagLabel");
+        led_lens8 = new QFrame(group_status);
+        led_lens8->setObjectName("led_lens8");
+        led_lens8->setMinimumSize(QSize(14, 14));
+        led_lens8->setMaximumSize(QSize(14, 14));
+        led_lens8->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(9, QFormLayout::ItemRole::FieldRole, curBmagLabel);
+        grid_status->addWidget(led_lens8, 1, 8, 1, 1);
 
-        label_heading = new QLabel(frame_2);
-        label_heading->setObjectName("label_heading");
+        label_camRow = new QLabel(group_status);
+        label_camRow->setObjectName("label_camRow");
 
-        formLayout_2->setWidget(10, QFormLayout::ItemRole::LabelRole, label_heading);
+        grid_status->addWidget(label_camRow, 2, 0, 1, 1);
 
-        curHeadingLabel = new QLabel(frame_2);
-        curHeadingLabel->setObjectName("curHeadingLabel");
+        led_cam1 = new QFrame(group_status);
+        led_cam1->setObjectName("led_cam1");
+        led_cam1->setMinimumSize(QSize(14, 14));
+        led_cam1->setMaximumSize(QSize(14, 14));
+        led_cam1->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_2->setWidget(10, QFormLayout::ItemRole::FieldRole, curHeadingLabel);
+        grid_status->addWidget(led_cam1, 2, 1, 1, 1);
 
+        led_cam2 = new QFrame(group_status);
+        led_cam2->setObjectName("led_cam2");
+        led_cam2->setMinimumSize(QSize(14, 14));
+        led_cam2->setMaximumSize(QSize(14, 14));
+        led_cam2->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout->setWidget(0, QFormLayout::ItemRole::LabelRole, frame_2);
+        grid_status->addWidget(led_cam2, 2, 2, 1, 1);
 
-        frame_7 = new QFrame(frame);
-        frame_7->setObjectName("frame_7");
-        frame_7->setFrameShape(QFrame::NoFrame);
-        frame_7->setFrameShadow(QFrame::Plain);
-        horizontalLayout_3 = new QHBoxLayout(frame_7);
-        horizontalLayout_3->setObjectName("horizontalLayout_3");
-        horizontalSpacer = new QSpacerItem(325, 17, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
+        led_cam3 = new QFrame(group_status);
+        led_cam3->setObjectName("led_cam3");
+        led_cam3->setMinimumSize(QSize(14, 14));
+        led_cam3->setMaximumSize(QSize(14, 14));
+        led_cam3->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        horizontalLayout_3->addItem(horizontalSpacer);
+        grid_status->addWidget(led_cam3, 2, 3, 1, 1);
 
-        powerButton = new QPushButton(frame_7);
-        powerButton->setObjectName("powerButton");
-        QSizePolicy sizePolicy2(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(powerButton->sizePolicy().hasHeightForWidth());
-        powerButton->setSizePolicy(sizePolicy2);
+        led_cam4 = new QFrame(group_status);
+        led_cam4->setObjectName("led_cam4");
+        led_cam4->setMinimumSize(QSize(14, 14));
+        led_cam4->setMaximumSize(QSize(14, 14));
+        led_cam4->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        horizontalLayout_3->addWidget(powerButton);
+        grid_status->addWidget(led_cam4, 2, 4, 1, 1);
 
+        led_cam5 = new QFrame(group_status);
+        led_cam5->setObjectName("led_cam5");
+        led_cam5->setMinimumSize(QSize(14, 14));
+        led_cam5->setMaximumSize(QSize(14, 14));
+        led_cam5->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout->setWidget(0, QFormLayout::ItemRole::FieldRole, frame_7);
+        grid_status->addWidget(led_cam5, 2, 5, 1, 1);
 
-        frame_6 = new QFrame(frame);
-        frame_6->setObjectName("frame_6");
-        QSizePolicy sizePolicy3(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(frame_6->sizePolicy().hasHeightForWidth());
-        frame_6->setSizePolicy(sizePolicy3);
-        frame_6->setFrameShape(QFrame::StyledPanel);
-        frame_6->setFrameShadow(QFrame::Plain);
-        formLayout_4 = new QFormLayout(frame_6);
-        formLayout_4->setObjectName("formLayout_4");
-        label = new QLabel(frame_6);
-        label->setObjectName("label");
+        led_cam6 = new QFrame(group_status);
+        led_cam6->setObjectName("led_cam6");
+        led_cam6->setMinimumSize(QSize(14, 14));
+        led_cam6->setMaximumSize(QSize(14, 14));
+        led_cam6->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_4->setWidget(1, QFormLayout::ItemRole::LabelRole, label);
+        grid_status->addWidget(led_cam6, 2, 6, 1, 1);
 
-        portComboBox = new QComboBox(frame_6);
-        portComboBox->setObjectName("portComboBox");
+        led_cam7 = new QFrame(group_status);
+        led_cam7->setObjectName("led_cam7");
+        led_cam7->setMinimumSize(QSize(14, 14));
+        led_cam7->setMaximumSize(QSize(14, 14));
+        led_cam7->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_4->setWidget(1, QFormLayout::ItemRole::FieldRole, portComboBox);
+        grid_status->addWidget(led_cam7, 2, 7, 1, 1);
 
-        refreshButton = new QPushButton(frame_6);
-        refreshButton->setObjectName("refreshButton");
+        led_cam8 = new QFrame(group_status);
+        led_cam8->setObjectName("led_cam8");
+        led_cam8->setMinimumSize(QSize(14, 14));
+        led_cam8->setMaximumSize(QSize(14, 14));
+        led_cam8->setStyleSheet(QString::fromUtf8("background: #111; border: 1px solid #333; border-radius: 7px;"));
 
-        formLayout_4->setWidget(3, QFormLayout::ItemRole::LabelRole, refreshButton);
+        grid_status->addWidget(led_cam8, 2, 8, 1, 1);
 
-        connectButton = new QPushButton(frame_6);
-        connectButton->setObjectName("connectButton");
 
-        formLayout_4->setWidget(3, QFormLayout::ItemRole::FieldRole, connectButton);
+        horizontalLayout_top->addWidget(group_status);
 
-        label_6 = new QLabel(frame_6);
-        label_6->setObjectName("label_6");
+        group_global = new QGroupBox(centralwidget);
+        group_global->setObjectName("group_global");
+        horizontalLayout_global = new QHBoxLayout(group_global);
+        horizontalLayout_global->setSpacing(8);
+        horizontalLayout_global->setObjectName("horizontalLayout_global");
+        check_onlyConnected = new QCheckBox(group_global);
+        check_onlyConnected->setObjectName("check_onlyConnected");
+        check_onlyConnected->setChecked(true);
 
-        formLayout_4->setWidget(0, QFormLayout::ItemRole::LabelRole, label_6);
+        horizontalLayout_global->addWidget(check_onlyConnected);
 
-        cameraIDLabel = new QLabel(frame_6);
-        cameraIDLabel->setObjectName("cameraIDLabel");
+        check_skipBusy = new QCheckBox(group_global);
+        check_skipBusy->setObjectName("check_skipBusy");
+        check_skipBusy->setChecked(true);
 
-        formLayout_4->setWidget(0, QFormLayout::ItemRole::FieldRole, cameraIDLabel);
+        horizontalLayout_global->addWidget(check_skipBusy);
 
+        btn_applyCameraToAll = new QPushButton(group_global);
+        btn_applyCameraToAll->setObjectName("btn_applyCameraToAll");
 
-        formLayout->setWidget(1, QFormLayout::ItemRole::LabelRole, frame_6);
+        horizontalLayout_global->addWidget(btn_applyCameraToAll);
 
-        frame_5 = new QFrame(frame);
-        frame_5->setObjectName("frame_5");
-        frame_5->setMinimumSize(QSize(300, 0));
-        frame_5->setFrameShape(QFrame::StyledPanel);
-        frame_5->setFrameShadow(QFrame::Raised);
-        formLayout_3 = new QFormLayout(frame_5);
-        formLayout_3->setObjectName("formLayout_3");
-        apertureValueLabel = new QLabel(frame_5);
-        apertureValueLabel->setObjectName("apertureValueLabel");
-        apertureValueLabel->setAutoFillBackground(false);
-        apertureValueLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+        btn_applyLensToAll = new QPushButton(group_global);
+        btn_applyLensToAll->setObjectName("btn_applyLensToAll");
 
-        formLayout_3->setWidget(0, QFormLayout::ItemRole::FieldRole, apertureValueLabel);
+        horizontalLayout_global->addWidget(btn_applyLensToAll);
 
-        label_4 = new QLabel(frame_5);
-        label_4->setObjectName("label_4");
+        btn_applyAllToAll = new QPushButton(group_global);
+        btn_applyAllToAll->setObjectName("btn_applyAllToAll");
 
-        formLayout_3->setWidget(1, QFormLayout::ItemRole::LabelRole, label_4);
+        horizontalLayout_global->addWidget(btn_applyAllToAll);
 
-        frame_9 = new QFrame(frame_5);
-        frame_9->setObjectName("frame_9");
-        frame_9->setFrameShape(QFrame::NoFrame);
-        frame_9->setFrameShadow(QFrame::Plain);
-        horizontalLayout_4 = new QHBoxLayout(frame_9);
-        horizontalLayout_4->setObjectName("horizontalLayout_4");
-        horizontalLayout_4->setContentsMargins(0, 0, 0, 0);
-        decrementApertureButton = new QPushButton(frame_9);
-        decrementApertureButton->setObjectName("decrementApertureButton");
-        decrementApertureButton->setMinimumSize(QSize(20, 0));
-        decrementApertureButton->setMaximumSize(QSize(30, 16777215));
+        btn_captureAll = new QPushButton(group_global);
+        btn_captureAll->setObjectName("btn_captureAll");
 
-        horizontalLayout_4->addWidget(decrementApertureButton);
+        horizontalLayout_global->addWidget(btn_captureAll);
 
-        apertureValueSlider = new QSlider(frame_9);
-        apertureValueSlider->setObjectName("apertureValueSlider");
-        apertureValueSlider->setMinimumSize(QSize(100, 0));
-        apertureValueSlider->setLayoutDirection(Qt::LeftToRight);
-        apertureValueSlider->setMinimum(4352);
-        apertureValueSlider->setMaximum(6144);
-        apertureValueSlider->setSingleStep(1);
-        apertureValueSlider->setValue(4352);
-        apertureValueSlider->setTracking(true);
-        apertureValueSlider->setOrientation(Qt::Horizontal);
-        apertureValueSlider->setInvertedAppearance(false);
-        apertureValueSlider->setInvertedControls(false);
+        progress_captureAll = new QProgressBar(group_global);
+        progress_captureAll->setObjectName("progress_captureAll");
+        progress_captureAll->setMaximum(100);
+        progress_captureAll->setValue(0);
+        progress_captureAll->setTextVisible(true);
+        progress_captureAll->setMinimumWidth(140);
 
-        horizontalLayout_4->addWidget(apertureValueSlider);
+        horizontalLayout_global->addWidget(progress_captureAll);
 
-        incrementApertureButton = new QPushButton(frame_9);
-        incrementApertureButton->setObjectName("incrementApertureButton");
-        incrementApertureButton->setMinimumSize(QSize(20, 0));
-        incrementApertureButton->setMaximumSize(QSize(30, 16777215));
+        label_captureAllStatus = new QLabel(group_global);
+        label_captureAllStatus->setObjectName("label_captureAllStatus");
+        label_captureAllStatus->setMinimumWidth(160);
 
-        horizontalLayout_4->addWidget(incrementApertureButton);
+        horizontalLayout_global->addWidget(label_captureAllStatus);
 
-        setApertureButton = new QPushButton(frame_9);
-        setApertureButton->setObjectName("setApertureButton");
-        setApertureButton->setMinimumSize(QSize(40, 0));
-        setApertureButton->setMaximumSize(QSize(50, 16777215));
 
-        horizontalLayout_4->addWidget(setApertureButton);
+        horizontalLayout_top->addWidget(group_global);
 
 
-        formLayout_3->setWidget(1, QFormLayout::ItemRole::FieldRole, frame_9);
+        verticalLayout_root->addLayout(horizontalLayout_top);
 
-        focusValueLabel = new QLabel(frame_5);
-        focusValueLabel->setObjectName("focusValueLabel");
-        focusValueLabel->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+        splitter_main = new QSplitter(centralwidget);
+        splitter_main->setObjectName("splitter_main");
+        splitter_main->setOrientation(Qt::Horizontal);
+        splitter_main->setChildrenCollapsible(false);
+        tabWidget_devices = new QTabWidget(splitter_main);
+        tabWidget_devices->setObjectName("tabWidget_devices");
+        tab_slot1 = new QWidget();
+        tab_slot1->setObjectName("tab_slot1");
+        verticalLayout_slot1 = new QVBoxLayout(tab_slot1);
+        verticalLayout_slot1->setObjectName("verticalLayout_slot1");
+        devicePanel1 = new DevicePanel(tab_slot1);
+        devicePanel1->setObjectName("devicePanel1");
 
-        formLayout_3->setWidget(2, QFormLayout::ItemRole::FieldRole, focusValueLabel);
+        verticalLayout_slot1->addWidget(devicePanel1);
 
-        label_5 = new QLabel(frame_5);
-        label_5->setObjectName("label_5");
+        tabWidget_devices->addTab(tab_slot1, QString());
+        tab_slot2 = new QWidget();
+        tab_slot2->setObjectName("tab_slot2");
+        verticalLayout_slot2 = new QVBoxLayout(tab_slot2);
+        verticalLayout_slot2->setObjectName("verticalLayout_slot2");
+        devicePanel2 = new DevicePanel(tab_slot2);
+        devicePanel2->setObjectName("devicePanel2");
 
-        formLayout_3->setWidget(3, QFormLayout::ItemRole::LabelRole, label_5);
+        verticalLayout_slot2->addWidget(devicePanel2);
 
-        frame_4 = new QFrame(frame_5);
-        frame_4->setObjectName("frame_4");
-        frame_4->setFrameShape(QFrame::NoFrame);
-        frame_4->setFrameShadow(QFrame::Plain);
-        horizontalLayout_2 = new QHBoxLayout(frame_4);
-        horizontalLayout_2->setObjectName("horizontalLayout_2");
-        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
-        decrementFocusButton = new QPushButton(frame_4);
-        decrementFocusButton->setObjectName("decrementFocusButton");
-        decrementFocusButton->setMinimumSize(QSize(20, 0));
-        decrementFocusButton->setMaximumSize(QSize(30, 16777215));
+        tabWidget_devices->addTab(tab_slot2, QString());
+        tab_slot3 = new QWidget();
+        tab_slot3->setObjectName("tab_slot3");
+        verticalLayout_slot3 = new QVBoxLayout(tab_slot3);
+        verticalLayout_slot3->setObjectName("verticalLayout_slot3");
+        devicePanel3 = new DevicePanel(tab_slot3);
+        devicePanel3->setObjectName("devicePanel3");
 
-        horizontalLayout_2->addWidget(decrementFocusButton);
+        verticalLayout_slot3->addWidget(devicePanel3);
 
-        focusValueSlider = new QSlider(frame_4);
-        focusValueSlider->setObjectName("focusValueSlider");
-        focusValueSlider->setMinimumSize(QSize(100, 0));
-        focusValueSlider->setLayoutDirection(Qt::LeftToRight);
-        focusValueSlider->setMinimum(8270);
-        focusValueSlider->setMaximum(12815);
-        focusValueSlider->setSingleStep(1);
-        focusValueSlider->setValue(8270);
-        focusValueSlider->setTracking(true);
-        focusValueSlider->setOrientation(Qt::Horizontal);
-        focusValueSlider->setInvertedAppearance(false);
-        focusValueSlider->setInvertedControls(false);
+        tabWidget_devices->addTab(tab_slot3, QString());
+        tab_slot4 = new QWidget();
+        tab_slot4->setObjectName("tab_slot4");
+        verticalLayout_slot4 = new QVBoxLayout(tab_slot4);
+        verticalLayout_slot4->setObjectName("verticalLayout_slot4");
+        devicePanel4 = new DevicePanel(tab_slot4);
+        devicePanel4->setObjectName("devicePanel4");
 
-        horizontalLayout_2->addWidget(focusValueSlider);
+        verticalLayout_slot4->addWidget(devicePanel4);
 
-        incrementFocusButton = new QPushButton(frame_4);
-        incrementFocusButton->setObjectName("incrementFocusButton");
-        incrementFocusButton->setMinimumSize(QSize(20, 0));
-        incrementFocusButton->setMaximumSize(QSize(30, 16777215));
+        tabWidget_devices->addTab(tab_slot4, QString());
+        tab_slot5 = new QWidget();
+        tab_slot5->setObjectName("tab_slot5");
+        verticalLayout_slot5 = new QVBoxLayout(tab_slot5);
+        verticalLayout_slot5->setObjectName("verticalLayout_slot5");
+        devicePanel5 = new DevicePanel(tab_slot5);
+        devicePanel5->setObjectName("devicePanel5");
 
-        horizontalLayout_2->addWidget(incrementFocusButton);
+        verticalLayout_slot5->addWidget(devicePanel5);
 
-        setFocusButton = new QPushButton(frame_4);
-        setFocusButton->setObjectName("setFocusButton");
-        setFocusButton->setMinimumSize(QSize(40, 0));
-        setFocusButton->setMaximumSize(QSize(50, 16777215));
+        tabWidget_devices->addTab(tab_slot5, QString());
+        tab_slot6 = new QWidget();
+        tab_slot6->setObjectName("tab_slot6");
+        verticalLayout_slot6 = new QVBoxLayout(tab_slot6);
+        verticalLayout_slot6->setObjectName("verticalLayout_slot6");
+        devicePanel6 = new DevicePanel(tab_slot6);
+        devicePanel6->setObjectName("devicePanel6");
 
-        horizontalLayout_2->addWidget(setFocusButton);
+        verticalLayout_slot6->addWidget(devicePanel6);
 
+        tabWidget_devices->addTab(tab_slot6, QString());
+        tab_slot7 = new QWidget();
+        tab_slot7->setObjectName("tab_slot7");
+        verticalLayout_slot7 = new QVBoxLayout(tab_slot7);
+        verticalLayout_slot7->setObjectName("verticalLayout_slot7");
+        devicePanel7 = new DevicePanel(tab_slot7);
+        devicePanel7->setObjectName("devicePanel7");
 
-        formLayout_3->setWidget(3, QFormLayout::ItemRole::FieldRole, frame_4);
+        verticalLayout_slot7->addWidget(devicePanel7);
 
+        tabWidget_devices->addTab(tab_slot7, QString());
+        tab_slot8 = new QWidget();
+        tab_slot8->setObjectName("tab_slot8");
+        verticalLayout_slot8 = new QVBoxLayout(tab_slot8);
+        verticalLayout_slot8->setObjectName("verticalLayout_slot8");
+        devicePanel8 = new DevicePanel(tab_slot8);
+        devicePanel8->setObjectName("devicePanel8");
 
-        formLayout->setWidget(1, QFormLayout::ItemRole::FieldRole, frame_5);
+        verticalLayout_slot8->addWidget(devicePanel8);
 
+        tabWidget_devices->addTab(tab_slot8, QString());
+        splitter_main->addWidget(tabWidget_devices);
+        widget_preview = new QWidget(splitter_main);
+        widget_preview->setObjectName("widget_preview");
+        verticalLayout_preview = new QVBoxLayout(widget_preview);
+        verticalLayout_preview->setObjectName("verticalLayout_preview");
+        verticalLayout_preview->setContentsMargins(0, 0, 0, 0);
+        group_preview = new QGroupBox(widget_preview);
+        group_preview->setObjectName("group_preview");
+        verticalLayout_previewBox = new QVBoxLayout(group_preview);
+        verticalLayout_previewBox->setObjectName("verticalLayout_previewBox");
+        label_mainPreview = new QLabel(group_preview);
+        label_mainPreview->setObjectName("label_mainPreview");
+        label_mainPreview->setAlignment(Qt::AlignCenter);
+        label_mainPreview->setMinimumSize(QSize(420, 420));
+        label_mainPreview->setFrameShape(QFrame::StyledPanel);
+        label_mainPreview->setScaledContents(true);
 
-        verticalLayout->addWidget(frame);
+        verticalLayout_previewBox->addWidget(label_mainPreview);
 
-        frame_3 = new QFrame(centralwidget);
-        frame_3->setObjectName("frame_3");
-        frame_3->setFrameShape(QFrame::NoFrame);
-        frame_3->setFrameShadow(QFrame::Plain);
-        horizontalLayout = new QHBoxLayout(frame_3);
-        horizontalLayout->setObjectName("horizontalLayout");
-        label_8 = new QLabel(frame_3);
-        label_8->setObjectName("label_8");
 
-        horizontalLayout->addWidget(label_8);
+        verticalLayout_preview->addWidget(group_preview);
 
-        curStateLabel = new QLabel(frame_3);
-        curStateLabel->setObjectName("curStateLabel");
+        group_debug = new QGroupBox(widget_preview);
+        group_debug->setObjectName("group_debug");
+        verticalLayout_debugBox = new QVBoxLayout(group_debug);
+        verticalLayout_debugBox->setObjectName("verticalLayout_debugBox");
+        text_mainDebug = new QPlainTextEdit(group_debug);
+        text_mainDebug->setObjectName("text_mainDebug");
+        text_mainDebug->setReadOnly(true);
+        text_mainDebug->setMinimumSize(QSize(420, 180));
 
-        horizontalLayout->addWidget(curStateLabel);
+        verticalLayout_debugBox->addWidget(text_mainDebug);
 
-        horizontalSpacer_2 = new QSpacerItem(747, 24, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
 
-        horizontalLayout->addItem(horizontalSpacer_2);
+        verticalLayout_preview->addWidget(group_debug);
 
-        label_7 = new QLabel(frame_3);
-        label_7->setObjectName("label_7");
+        splitter_main->addWidget(widget_preview);
 
-        horizontalLayout->addWidget(label_7);
-
-        debugButton = new QPushButton(frame_3);
-        debugButton->setObjectName("debugButton");
-        debugButton->setMinimumSize(QSize(40, 0));
-        debugButton->setMaximumSize(QSize(60, 16777215));
-
-        horizontalLayout->addWidget(debugButton);
-
-
-        verticalLayout->addWidget(frame_3);
-
-        asiCameraGroupBox = new QGroupBox(centralwidget);
-        asiCameraGroupBox->setObjectName("asiCameraGroupBox");
-        asiCameraVBox = new QVBoxLayout(asiCameraGroupBox);
-        asiCameraVBox->setObjectName("asiCameraVBox");
-        asiCameraForm = new QFormLayout();
-        asiCameraForm->setObjectName("asiCameraForm");
-        cameraEndpointLabel = new QLabel(asiCameraGroupBox);
-        cameraEndpointLabel->setObjectName("cameraEndpointLabel");
-
-        asiCameraForm->setWidget(0, QFormLayout::ItemRole::LabelRole, cameraEndpointLabel);
-
-        cameraEndpointEdit = new QLineEdit(asiCameraGroupBox);
-        cameraEndpointEdit->setObjectName("cameraEndpointEdit");
-
-        asiCameraForm->setWidget(0, QFormLayout::ItemRole::FieldRole, cameraEndpointEdit);
-
-        exposureUsLabel = new QLabel(asiCameraGroupBox);
-        exposureUsLabel->setObjectName("exposureUsLabel");
-
-        asiCameraForm->setWidget(1, QFormLayout::ItemRole::LabelRole, exposureUsLabel);
-
-        exposureUsSpin = new QSpinBox(asiCameraGroupBox);
-        exposureUsSpin->setObjectName("exposureUsSpin");
-        exposureUsSpin->setMinimum(1);
-        exposureUsSpin->setMaximum(60000000);
-        exposureUsSpin->setValue(30000);
-
-        asiCameraForm->setWidget(1, QFormLayout::ItemRole::FieldRole, exposureUsSpin);
-
-        gainLabel = new QLabel(asiCameraGroupBox);
-        gainLabel->setObjectName("gainLabel");
-
-        asiCameraForm->setWidget(2, QFormLayout::ItemRole::LabelRole, gainLabel);
-
-        gainSpin = new QSpinBox(asiCameraGroupBox);
-        gainSpin->setObjectName("gainSpin");
-        gainSpin->setMinimum(0);
-        gainSpin->setMaximum(600);
-        gainSpin->setValue(50);
-
-        asiCameraForm->setWidget(2, QFormLayout::ItemRole::FieldRole, gainSpin);
-
-        countLabel = new QLabel(asiCameraGroupBox);
-        countLabel->setObjectName("countLabel");
-
-        asiCameraForm->setWidget(3, QFormLayout::ItemRole::LabelRole, countLabel);
-
-        countSpin = new QSpinBox(asiCameraGroupBox);
-        countSpin->setObjectName("countSpin");
-        countSpin->setMinimum(1);
-        countSpin->setMaximum(10000);
-        countSpin->setValue(1);
-
-        asiCameraForm->setWidget(3, QFormLayout::ItemRole::FieldRole, countSpin);
-
-        formatLabel = new QLabel(asiCameraGroupBox);
-        formatLabel->setObjectName("formatLabel");
-
-        asiCameraForm->setWidget(4, QFormLayout::ItemRole::LabelRole, formatLabel);
-
-        formatCombo = new QComboBox(asiCameraGroupBox);
-        formatCombo->addItem(QString());
-        formatCombo->addItem(QString());
-        formatCombo->addItem(QString());
-        formatCombo->setObjectName("formatCombo");
-
-        asiCameraForm->setWidget(4, QFormLayout::ItemRole::FieldRole, formatCombo);
-
-        outdirLabel = new QLabel(asiCameraGroupBox);
-        outdirLabel->setObjectName("outdirLabel");
-
-        asiCameraForm->setWidget(5, QFormLayout::ItemRole::LabelRole, outdirLabel);
-
-        outdirEdit = new QLineEdit(asiCameraGroupBox);
-        outdirEdit->setObjectName("outdirEdit");
-
-        asiCameraForm->setWidget(5, QFormLayout::ItemRole::FieldRole, outdirEdit);
-
-        prefixLabel = new QLabel(asiCameraGroupBox);
-        prefixLabel->setObjectName("prefixLabel");
-
-        asiCameraForm->setWidget(6, QFormLayout::ItemRole::LabelRole, prefixLabel);
-
-        prefixEdit = new QLineEdit(asiCameraGroupBox);
-        prefixEdit->setObjectName("prefixEdit");
-
-        asiCameraForm->setWidget(6, QFormLayout::ItemRole::FieldRole, prefixEdit);
-
-
-        asiCameraVBox->addLayout(asiCameraForm);
-
-        asiCameraButtonsHBox = new QHBoxLayout();
-        asiCameraButtonsHBox->setObjectName("asiCameraButtonsHBox");
-        camConnectButton = new QPushButton(asiCameraGroupBox);
-        camConnectButton->setObjectName("camConnectButton");
-
-        asiCameraButtonsHBox->addWidget(camConnectButton);
-
-        camStatusButton = new QPushButton(asiCameraGroupBox);
-        camStatusButton->setObjectName("camStatusButton");
-        camStatusButton->setEnabled(false);
-
-        asiCameraButtonsHBox->addWidget(camStatusButton);
-
-        camCaptureButton = new QPushButton(asiCameraGroupBox);
-        camCaptureButton->setObjectName("camCaptureButton");
-        camCaptureButton->setEnabled(false);
-
-        asiCameraButtonsHBox->addWidget(camCaptureButton);
-
-        asiCamSpacer = new QSpacerItem(40, 20, QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Minimum);
-
-        asiCameraButtonsHBox->addItem(asiCamSpacer);
-
-
-        asiCameraVBox->addLayout(asiCameraButtonsHBox);
-
-
-        verticalLayout->addWidget(asiCameraGroupBox);
-
-        debugBox = new QPlainTextEdit(centralwidget);
-        debugBox->setObjectName("debugBox");
-
-        verticalLayout->addWidget(debugBox);
+        verticalLayout_root->addWidget(splitter_main);
 
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName("menubar");
-        menubar->setGeometry(QRect(0, 0, 844, 24));
-        menuAbout = new QMenu(menubar);
-        menuAbout->setObjectName("menuAbout");
+        menuHelp = new QMenu(menubar);
+        menuHelp->setObjectName("menuHelp");
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName("statusbar");
         MainWindow->setStatusBar(statusbar);
 
-        menubar->addAction(menuAbout->menuAction());
-        menuAbout->addAction(actionAbout);
+        menubar->addAction(menuHelp->menuAction());
+        menuHelp->addAction(actionAbout);
 
         retranslateUi(MainWindow);
+
+        tabWidget_devices->setCurrentIndex(0);
+
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -645,67 +541,40 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "\316\243 Control", nullptr));
-        actionThis_program_was_written_by_Tapendra_sldkfjlksdjflk_slkdfj_lksjdf_lsakdfjlk_jsdf_slkdfjlksd_jfa->setText(QCoreApplication::translate("MainWindow", "This program was written by Tapendra sldkfjlksdjflk slkdfj lksjdf  lsakdfjlk jsdf slkdfjlksd jfa", nullptr));
         actionAbout->setText(QCoreApplication::translate("MainWindow", "About", nullptr));
-        label_2->setText(QCoreApplication::translate("MainWindow", "Focus:", nullptr));
-        curFocusLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_3->setText(QCoreApplication::translate("MainWindow", "Aperture:", nullptr));
-        curApertureLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_temp->setText(QCoreApplication::translate("MainWindow", "Temp:", nullptr));
-        curTempLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_pressure->setText(QCoreApplication::translate("MainWindow", "Pressure:", nullptr));
-        curPressureLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_humidity->setText(QCoreApplication::translate("MainWindow", "Humidity:", nullptr));
-        curHumidityLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_accel->setText(QCoreApplication::translate("MainWindow", "Accel (m/s\302\262):", nullptr));
-        curAccelLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_gyro->setText(QCoreApplication::translate("MainWindow", "Gyro (dps):", nullptr));
-        curGyroLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_mag->setText(QCoreApplication::translate("MainWindow", "Mag (\302\265T):", nullptr));
-        curMagLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_bmag->setText(QCoreApplication::translate("MainWindow", "|B| (\302\265T):", nullptr));
-        curBmagLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_heading->setText(QCoreApplication::translate("MainWindow", "Heading (deg):", nullptr));
-        curHeadingLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        powerButton->setText(QCoreApplication::translate("MainWindow", "Shut Down", nullptr));
-        label->setText(QCoreApplication::translate("MainWindow", "Select Port", nullptr));
-        refreshButton->setText(QCoreApplication::translate("MainWindow", "Refresh", nullptr));
-        connectButton->setText(QCoreApplication::translate("MainWindow", "Connect", nullptr));
-        label_6->setText(QCoreApplication::translate("MainWindow", "Cam #", nullptr));
-        cameraIDLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        apertureValueLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
-        label_4->setText(QCoreApplication::translate("MainWindow", "Aperture", nullptr));
-        decrementApertureButton->setText(QCoreApplication::translate("MainWindow", "<", nullptr));
-        incrementApertureButton->setText(QCoreApplication::translate("MainWindow", ">", nullptr));
-        setApertureButton->setText(QCoreApplication::translate("MainWindow", "Set", nullptr));
-        focusValueLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
-        label_5->setText(QCoreApplication::translate("MainWindow", "Focus", nullptr));
-        decrementFocusButton->setText(QCoreApplication::translate("MainWindow", "<", nullptr));
-        incrementFocusButton->setText(QCoreApplication::translate("MainWindow", ">", nullptr));
-        setFocusButton->setText(QCoreApplication::translate("MainWindow", "Set", nullptr));
-        label_8->setText(QCoreApplication::translate("MainWindow", "State : ", nullptr));
-        curStateLabel->setText(QCoreApplication::translate("MainWindow", "Unknown", nullptr));
-        label_7->setText(QCoreApplication::translate("MainWindow", "Debug", nullptr));
-        debugButton->setText(QCoreApplication::translate("MainWindow", "|>", nullptr));
-        asiCameraGroupBox->setTitle(QCoreApplication::translate("MainWindow", "ASI Camera", nullptr));
-        cameraEndpointLabel->setText(QCoreApplication::translate("MainWindow", "Endpoint", nullptr));
-        cameraEndpointEdit->setText(QCoreApplication::translate("MainWindow", "tcp:192.168.50.20:5001", nullptr));
-        exposureUsLabel->setText(QCoreApplication::translate("MainWindow", "Exposure (\302\265s)", nullptr));
-        gainLabel->setText(QCoreApplication::translate("MainWindow", "Gain", nullptr));
-        countLabel->setText(QCoreApplication::translate("MainWindow", "Count", nullptr));
-        formatLabel->setText(QCoreApplication::translate("MainWindow", "Format", nullptr));
-        formatCombo->setItemText(0, QCoreApplication::translate("MainWindow", "tiff", nullptr));
-        formatCombo->setItemText(1, QCoreApplication::translate("MainWindow", "png", nullptr));
-        formatCombo->setItemText(2, QCoreApplication::translate("MainWindow", "jpeg", nullptr));
-
-        outdirLabel->setText(QCoreApplication::translate("MainWindow", "Outdir", nullptr));
-        outdirEdit->setText(QCoreApplication::translate("MainWindow", "captures/run01", nullptr));
-        prefixLabel->setText(QCoreApplication::translate("MainWindow", "Prefix", nullptr));
-        prefixEdit->setText(QCoreApplication::translate("MainWindow", "cam0", nullptr));
-        camConnectButton->setText(QCoreApplication::translate("MainWindow", "Connect Camera", nullptr));
-        camStatusButton->setText(QCoreApplication::translate("MainWindow", "Status", nullptr));
-        camCaptureButton->setText(QCoreApplication::translate("MainWindow", "Capture", nullptr));
-        menuAbout->setTitle(QCoreApplication::translate("MainWindow", "Help", nullptr));
+        group_status->setTitle(QCoreApplication::translate("MainWindow", "Status", nullptr));
+        label_statusHeader->setText(QString());
+        label_col1->setText(QCoreApplication::translate("MainWindow", "1", nullptr));
+        label_col2->setText(QCoreApplication::translate("MainWindow", "2", nullptr));
+        label_col3->setText(QCoreApplication::translate("MainWindow", "3", nullptr));
+        label_col4->setText(QCoreApplication::translate("MainWindow", "4", nullptr));
+        label_col5->setText(QCoreApplication::translate("MainWindow", "5", nullptr));
+        label_col6->setText(QCoreApplication::translate("MainWindow", "6", nullptr));
+        label_col7->setText(QCoreApplication::translate("MainWindow", "7", nullptr));
+        label_col8->setText(QCoreApplication::translate("MainWindow", "8", nullptr));
+        label_lensRow->setText(QCoreApplication::translate("MainWindow", "Lens", nullptr));
+        label_camRow->setText(QCoreApplication::translate("MainWindow", "Cam", nullptr));
+        group_global->setTitle(QCoreApplication::translate("MainWindow", "Global controls", nullptr));
+        check_onlyConnected->setText(QCoreApplication::translate("MainWindow", "Only connected", nullptr));
+        check_skipBusy->setText(QCoreApplication::translate("MainWindow", "Skip busy", nullptr));
+        btn_applyCameraToAll->setText(QCoreApplication::translate("MainWindow", "Apply camera settings", nullptr));
+        btn_applyLensToAll->setText(QCoreApplication::translate("MainWindow", "Apply lens settings", nullptr));
+        btn_applyAllToAll->setText(QCoreApplication::translate("MainWindow", "Apply all settings", nullptr));
+        btn_captureAll->setText(QCoreApplication::translate("MainWindow", "Capture all", nullptr));
+        label_captureAllStatus->setText(QString());
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot1), QCoreApplication::translate("MainWindow", "Slot 1", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot2), QCoreApplication::translate("MainWindow", "Slot 2", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot3), QCoreApplication::translate("MainWindow", "Slot 3", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot4), QCoreApplication::translate("MainWindow", "Slot 4", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot5), QCoreApplication::translate("MainWindow", "Slot 5", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot6), QCoreApplication::translate("MainWindow", "Slot 6", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot7), QCoreApplication::translate("MainWindow", "Slot 7", nullptr));
+        tabWidget_devices->setTabText(tabWidget_devices->indexOf(tab_slot8), QCoreApplication::translate("MainWindow", "Slot 8", nullptr));
+        group_preview->setTitle(QCoreApplication::translate("MainWindow", "Preview", nullptr));
+        label_mainPreview->setText(QCoreApplication::translate("MainWindow", "Preview will appear here (active slot).", nullptr));
+        group_debug->setTitle(QCoreApplication::translate("MainWindow", "Debug Output", nullptr));
+        text_mainDebug->setPlaceholderText(QCoreApplication::translate("MainWindow", "Bridge logs, capture messages, and active-slot debug output can appear here.", nullptr));
+        menuHelp->setTitle(QCoreApplication::translate("MainWindow", "Help", nullptr));
     } // retranslateUi
 
 };
