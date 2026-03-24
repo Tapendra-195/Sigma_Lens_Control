@@ -5,6 +5,9 @@
 #include <QMap>
 #include <QTimer>
 #include <QString>
+#include <QSettings>
+#include <QFileDialog>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class DevicePanel; }
@@ -52,6 +55,7 @@ public:
 
   LedState lensLedState() const;
   LedState cameraLedState() const;
+
 
 public slots:
   void capture(); // single-slot capture (used by Capture All)
@@ -134,6 +138,7 @@ private:
 
   // backend-reported lens FSM state: Off / Idle / LinkEstablishment / ...
   QString mLensBackendState;
+
 };
 
 Q_DECLARE_METATYPE(DevicePanel::LedState)

@@ -6,6 +6,8 @@
 #include "DevicePanel.h"
 #include <QEvent>
 #include <QString>
+#include <QFile>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -54,6 +56,12 @@ private:
   int mCaptureAllDone  = 0;
 
   QString mLastCapturedTiffPath;
+
+  QFile mLogFile;
+  QTextStream mLogStream;
+
+  void openLogFile();
+  void writeLogLine(const QString& line);
 
   protected:
   bool eventFilter(QObject* obj, QEvent* event) override;

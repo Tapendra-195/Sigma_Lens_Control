@@ -1,9 +1,12 @@
 #include "../include/LinkEstablishmentState.h"
 #include "../include/CameraFirmware.h"
+#include "../include/Config.h"
 
 void LinkEstablishmentState::enter(CameraFirmware& firmware)
 {
-    Serial.println("DBG: ENTER LinkEstablishment");
+    if (debugLevel >= DBG_VERBOSE) {
+      Serial.println("DBG: ENTER LinkEstablishment");
+    }
     startTime = micros();
   
     pinMode(static_cast<uint8_t>(LENS_PIN::TX), OUTPUT); //UART hasn't started yet. Still doing link establishment.
@@ -35,7 +38,9 @@ STATUS LinkEstablishmentState::pollPhase()
     {
     case PHASE::WAIT_FOR_CS_HIGH:
 	if (digitalRead(static_cast<uint8_t>(LENS_PIN::LENS_CS_BODY))) {
-        Serial.println("DBG: LE got CS high");
+        if (debugLevel >= DBG_VERBOSE) {
+            Serial.println("DBG: LE got CS high");
+        }
 	    digitalWrite(static_cast<uint8_t>(LENS_PIN::TX), HIGH);
 	    mPhase = PHASE::WAIT_FOR_RX_HIGH;
 	}
@@ -43,7 +48,9 @@ STATUS LinkEstablishmentState::pollPhase()
 	
     case PHASE::WAIT_FOR_RX_HIGH:
 	if (digitalRead(static_cast<uint8_t>(LENS_PIN::RX))) {
-        Serial.println("DBG: LE got RX high");
+        if (debugLevel >= DBG_VERBOSE) {
+            Serial.println("DBG: LE got RX high");
+        }
 	    digitalWrite(static_cast<uint8_t>(LENS_PIN::BODY_CS_LENS), LOW);
 	    mPhase = PHASE::WAIT_FOR_CS_LOW;
 	}
@@ -51,7 +58,9 @@ STATUS LinkEstablishmentState::pollPhase()
 	
     case PHASE::WAIT_FOR_CS_LOW:
 	if (!digitalRead(static_cast<uint8_t>(LENS_PIN::LENS_CS_BODY))) {
-        Serial.println("DBG: LE got CS low -> COMPLETE");
+        if (debugLevel >= DBG_VERBOSE) {
+            Serial.println("DBG: LE got CS low -> COMPLETE");
+        }
 	    mPhase = PHASE::COMPLETE;
 	    return STATUS::SUCCESS;
 	}
@@ -60,7 +69,9 @@ STATUS LinkEstablishmentState::pollPhase()
     case PHASE::COMPLETE:
 	return STATUS::SUCCESS;
     }
-    Serial.println("DBG: LE unexpected failure");
+    if (debugLevel >= DBG_VERBOSE) {
+        Serial.println("DBG: LE unexpected failure");
+    }
   return STATUS::FALIURE; // should never reach
 }
 
@@ -83,7 +94,9 @@ void LinkEstablishmentState::update(CameraFirmware& firmware)
     unsigned long delTime = micros() - startTime;
     if(delTime > 2000000) //delTime>2 sec
     {
-        Serial.println("DBG: LinkEstablishment TIMEOUT -> Idle");
+        if (debugLevel >= DBG_VERBOSE) {
+            Serial.println("DBG: LinkEstablishment TIMEOUT -> Idle");
+        }
 	    firmware.mState = &LensState::idle;
 	    firmware.mState->enter(firmware);
 	    firmware.mResetCount++;
@@ -94,7 +107,9 @@ void LinkEstablishmentState::update(CameraFirmware& firmware)
     STATUS result = pollPhase();
     if(result == STATUS::SUCCESS)
     {
-        Serial.println("DBG: LinkEstablishment SUCCESS -> SpeedNegotiation");
+        if (debugLevel >= DBG_VERBOSE) {
+            Serial.println("DBG: LinkEstablishment SUCCESS -> SpeedNegotiation");
+        }
         firmware.scheduleSensorReinit(100);
 	    firmware.mState = &LensState::speedNegotiation;
 	    firmware.mState->enter(firmware);

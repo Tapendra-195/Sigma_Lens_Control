@@ -1,9 +1,11 @@
 #include "include/CameraFirmware.h"
+#include "include/Config.h"
 
 CameraFirmware firmware;
 HumiditySensor h;
 ImuSensor imu;
 MagSensor mag(0x1C);
+DebugLevel debugLevel = DBG_INFO;
 
 void setup() {
 

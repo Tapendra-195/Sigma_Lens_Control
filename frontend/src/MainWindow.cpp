@@ -13,12 +13,46 @@
 #include <QUrl>
 #include <QMouseEvent>
 #include <QFileInfo>
+#include <QDateTime>
+#include <QDir>
+
+
+void MainWindow::openLogFile()
+{
+  QDir().mkpath("logs");
+
+  const QString filename =
+      QString("logs/session_%1.log")
+      .arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss"));
+
+  mLogFile.setFileName(filename);
+  if (mLogFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    mLogStream.setDevice(&mLogFile);
+    mLogStream << "Log started "
+               << QDateTime::currentDateTime().toString(Qt::ISODate)
+               << "\n";
+    mLogStream.flush();
+  }
+}
+
+
+void MainWindow::writeLogLine(const QString& line)
+{
+  if (!mLogFile.isOpen())
+    return;
+
+  mLogStream << QDateTime::currentDateTime().toString("HH:mm:ss.zzz")
+             << " " << line << "\n";
+  mLogStream.flush();
+}
 
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
+
+  openLogFile();
 
   if (ui->actionAbout)
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::showAbout);
@@ -183,7 +217,10 @@ void MainWindow::onPanelStatusMessage(int slot1, const QString& msg)
     auto* sb = ui->text_mainDebug->verticalScrollBar();
     if (sb) sb->setValue(sb->maximum());
   }
+
+  writeLogLine(line);
 }
+
 
 bool MainWindow::eventFilter(QObject* obj, QEvent* event)
 {

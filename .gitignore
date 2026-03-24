@@ -28,3 +28,5 @@ frontend/captures/
 *.tiff
 *.tif
 *_preview.png
+logs/
+

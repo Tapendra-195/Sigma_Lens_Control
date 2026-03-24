@@ -1,9 +1,12 @@
 #include "../include/RegularMessagingState.h"
 #include "../include/CameraFirmware.h"
+#include "../include/Config.h"
 
 void RegularMessagingState::enter(CameraFirmware& firmware)
 {
-  Serial.println("DBG: ENTER RegularMessaging");
+  if (debugLevel >= DBG_VERBOSE) {
+	Serial.println("DBG: ENTER RegularMessaging");
+  }	
   //Start with default value. 
   firmware.mMessage03.reset();
   firmware.mMessage04.reset();
@@ -15,16 +18,19 @@ void RegularMessagingState::enter(CameraFirmware& firmware)
 
 void RegularMessagingState::handleInput(CameraFirmware& firmware, EVENT e)
 {
-  Serial.printf("DBG: RegularMessaging::handleInput e=%d\n", (int)e);
+  if (debugLevel >= DBG_VERBOSE) {
+    Serial.printf("DBG: RegularMessaging::handleInput e=%d\n", (int)e);
+  }
   if(e == EVENT::PROCESS_MESSAGE)
     {
       Message msgTemp(firmware.lensToBodyBuffer);
       Message* msg = &msgTemp;
 
-	  
-	  Serial.printf("DBG: RegularMessaging PROCESS_MESSAGE type=0x%02X\n",
-                    msg->getMessageType());
-    	switch (msg->getMessageType())
+	  if (debugLevel >= DBG_VERBOSE) {
+		Serial.printf("DBG: RegularMessaging PROCESS_MESSAGE type=0x%02X\n",
+					msg->getMessageType());
+	  }
+      switch (msg->getMessageType())
 		{
 		case 0x05:
 		{

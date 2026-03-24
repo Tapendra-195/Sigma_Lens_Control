@@ -1,8 +1,9 @@
 * text=auto
 
-*.cpp text
-*.h text
-*.ui text
-*.py text
-*.pro text
-*.gitignore text
+*.cpp text eol=lf
+*.h   text eol=lf
+*.ui  text eol=lf
+*.py  text eol=lf
+*.pro text eol=lf
+*.gitignore text eol=lf
+

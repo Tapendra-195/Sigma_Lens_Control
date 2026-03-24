@@ -4,9 +4,6 @@
 #include "../include/LensClient.h"
 #include "../include/CameraClient.h"
 
-#include <QFileDialog>
-#include <QSettings>
-#include <QDateTime>
 #include <cmath>
 #include <algorithm>
 
@@ -70,6 +67,15 @@ DevicePanel::DevicePanel(QWidget* parent)
   connect(ui->btn_focusSet,       &QPushButton::clicked, this, &DevicePanel::onFocusSetClicked);
   connect(ui->btn_apertureSet,    &QPushButton::clicked, this, &DevicePanel::onApertureSetClicked);
 
+   // Match original working raw lens ranges from old MainWindow.ui
+  ui->apertureValueSlider->setMinimum(0x1100); // 4352
+  ui->apertureValueSlider->setMaximum(0x1800); // 6144
+  ui->apertureValueSlider->setValue(0x1100);   // 4352
+
+  ui->focusValueSlider->setMinimum(0x2024);   // 8232
+  ui->focusValueSlider->setMaximum(0x31E9);    // 12777
+  ui->focusValueSlider->setValue(0x204E);      // 8270
+
   connect(ui->focusValueSlider,    &QSlider::valueChanged, this, &DevicePanel::onFocusSliderChanged);
   connect(ui->apertureValueSlider, &QSlider::valueChanged, this, &DevicePanel::onApertureSliderChanged);
 
@@ -115,6 +121,7 @@ DevicePanel::DevicePanel(QWidget* parent)
   onFocusSliderChanged(ui->focusValueSlider->value());
   onApertureSliderChanged(ui->apertureValueSlider->value());
   updateLensControlsForState();
+
 }
 
 DevicePanel::~DevicePanel()
@@ -134,6 +141,18 @@ QString DevicePanel::lensEndpoint() const
 {
   const QString host = ui->edit_host->text().trimmed();
   const int port = ui->spin_lensPort->value();
+
+  if (host.startsWith("COM", Qt::CaseInsensitive) ||
+      host.startsWith("/dev/", Qt::CaseInsensitive))
+  {
+    return host;
+  }
+
+  if (host.startsWith("tcp:", Qt::CaseInsensitive))
+  {
+    return host;
+  }
+
   return QString("tcp:%1:%2").arg(host).arg(port);
 }
 
@@ -339,8 +358,9 @@ void DevicePanel::onFocusSetClicked()
   }
 
   const int v = ui->focusValueSlider->value();
-  mLens->sendLine(QString("SF %1").arg(v));
-  emit statusMessage(mSlotIndex1, QString("Lens focus set: %1").arg(v));
+  const QString cmd = QString("SF %1").arg(v);   // <-- define first
+  emit statusMessage(mSlotIndex1, "Lens TX: " + cmd);
+  mLens->sendLine(cmd);
 }
 
 void DevicePanel::onApertureSetClicked()
@@ -358,8 +378,9 @@ void DevicePanel::onApertureSetClicked()
   }
 
   const int v = ui->apertureValueSlider->value();
-  mLens->sendLine(QString("SA %1").arg(v));
-  emit statusMessage(mSlotIndex1, QString("Lens aperture set: %1").arg(v));
+  const QString cmd = QString("SA %1").arg(v);
+  emit statusMessage(mSlotIndex1, "Lens TX: " + cmd);
+  mLens->sendLine(cmd);
 }
 
 void DevicePanel::onFocusSliderChanged(int v)
@@ -540,17 +561,38 @@ void DevicePanel::onLensTelemetryUpdated(const QMap<QString, QString>& kv)
     ui->value_lensState->setText(st);
   }
 
-  const QString aStr = kv.value("A");
-  bool okA = false;
-  const int aVal = aStr.toInt(&okA);
-  if (okA)
+  bool okA = false, okF = false;
+  const int aVal = kv.value("A").toInt(&okA);
+  const int fVal = kv.value("F").toInt(&okF);
+
+  const int oldA = static_cast<int>(mAperture);
+  const int oldF = static_cast<int>(mLensPos);
+
+  if (okA) {
     mAperture = static_cast<uint16_t>(aVal);
 
-  const QString fStr = kv.value("F");
-  bool okF = false;
-  const int fVal = fStr.toInt(&okF);
-  if (okF)
+    // Only sync the requested aperture control if the actual lens value changed
+    if (aVal != oldA) {
+      const int clamped = std::clamp(aVal,
+          ui->apertureValueSlider->minimum(),
+          ui->apertureValueSlider->maximum());
+      ui->apertureValueSlider->setValue(clamped);
+      onApertureSliderChanged(clamped);
+    }
+  }
+
+  if (okF) {
     mLensPos = static_cast<uint16_t>(fVal);
+
+    // Only sync the requested focus control if the actual lens value changed
+    if (fVal != oldF) {
+      const int clamped = std::clamp(fVal,
+          ui->focusValueSlider->minimum(),
+          ui->focusValueSlider->maximum());
+      ui->focusValueSlider->setValue(clamped);
+      onFocusSliderChanged(clamped);
+    }
+  }
 
   updateLensControlsForState();
   setOverallStatusText();
@@ -560,8 +602,10 @@ void DevicePanel::onLensTelemetryUpdated(const QMap<QString, QString>& kv)
 
 void DevicePanel::onLensRawLine(const QString& line)
 {
-  if (!line.trimmed().isEmpty())
-    emit statusMessage(mSlotIndex1, "Lens RX: " + line);
+  if (!line.trimmed().isEmpty()) {
+    const QString msg = "Lens RX: " + line;
+    emit statusMessage(mSlotIndex1, msg);
+  }
 }
 
 void DevicePanel::onLensStatusMessage(const QString& msg)

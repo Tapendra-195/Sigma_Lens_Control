@@ -65,7 +65,12 @@ bool LensClient::connectSerial(const QString& portName)
   if (mSerial->isOpen()) mSerial->close();
 
   mSerial->setPortName(portName);
-  mSerial->setBaudRate(QSerialPort::Baud9600);
+  mSerial->setBaudRate(QSerialPort::Baud115200);
+  mSerial->setBaudRate(QSerialPort::Baud115200);
+  mSerial->setDataBits(QSerialPort::Data8);
+  mSerial->setParity(QSerialPort::NoParity);
+  mSerial->setStopBits(QSerialPort::OneStop);
+  mSerial->setFlowControl(QSerialPort::NoFlowControl);
 
   if (!mSerial->open(QIODevice::ReadWrite))
     return false;

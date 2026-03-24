@@ -50,99 +50,105 @@ void CameraFirmware::updateFSM()
 void CameraFirmware::attachHumiditySensor(HumiditySensor* s)
 {
   humiditySensor = s;
-  if (!humiditySensor) return;
-
-  pinMode(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), OUTPUT);
-  digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), HIGH);
-
-  delay(20);
-  bool ok = humiditySensor->begin();
-  Serial.printf("BME280 begin @0x%02X -> %s\n", 0x76, ok ? "OK" : "FAIL");
+  if (debugLevel >= DBG_INFO) {
+    Serial.println("DBG: humidity sensor attached");
+  }
 }
 
 void CameraFirmware::attachImuSensor(ImuSensor* s)
 {
   imuSensor = s;
-  if (!imuSensor) return;
-
-  pinMode(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), OUTPUT);
-  digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), HIGH);
-
-  delay(20);
-  bool ok = imuSensor->begin();
-  Serial.printf("LSM6DS3 begin @0x6A -> %s\n", ok ? "OK" : "FAIL");
+  if (debugLevel >= DBG_INFO) {
+    Serial.println("DBG: IMU sensor attached");
+  }
 }
 
 void CameraFirmware::attachMagSensor(MagSensor* s)
 {
   magSensor = s;
-  if (!magSensor) return;
-
-  pinMode(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), OUTPUT);
-  digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), HIGH);
-
-  delay(20);
-  bool ok = magSensor->begin();
-  Serial.printf("LIS3MDL begin @0x1E -> %s\n", ok ? "OK" : "FAIL");
+  if (debugLevel >= DBG_INFO) {
+    Serial.println("DBG: mag sensor attached");
+  }
 }
 
 void CameraFirmware::scheduleSensorReinit(unsigned long delayMs)
 {
   mSensorsNeedReinit = true;
   mSensorReinitAtMs = millis() + delayMs;
-  Serial.printf("DBG: scheduled sensor reinit in %lu ms\n", delayMs);
+  if (debugLevel >= DBG_INFO) {
+    Serial.printf("DBG: scheduled sensor reinit in %lu ms\n", delayMs);
+  }
 }
 
 void CameraFirmware::reinitSensors()
 {
-  Serial.println("DBG: reinitializing sensors after lens link event");
+  const bool logicRailOn = digitalRead(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW));
+  if (!logicRailOn) {
+    if (debugLevel >= DBG_INFO) {
+      Serial.println("DBG: sensor reinit skipped, logic rail is off");
+    }
+    return;
+  }
 
-  // Ensure logic rail is on before reinit
-  pinMode(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), OUTPUT);
-  digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), HIGH);
-  delay(20);
+  if (debugLevel >= DBG_INFO) {
+    Serial.println("DBG: reinitializing sensors");
+  }
 
   if (humiditySensor != nullptr) {
     bool ok = humiditySensor->begin();
-    Serial.printf("DBG: BME280 reinit -> %s\n", ok ? "OK" : "FAIL");
+    if (debugLevel >= DBG_INFO) {
+      Serial.printf("DBG: BME280 init -> %s\n", ok ? "OK" : "FAIL");
+    }
   }
 
   if (imuSensor != nullptr) {
     bool ok = imuSensor->begin();
-    Serial.printf("DBG: IMU reinit -> %s\n", ok ? "OK" : "FAIL");
+    if (debugLevel >= DBG_INFO) {
+      Serial.printf("DBG: IMU init -> %s\n", ok ? "OK" : "FAIL");
+    }
   }
 
   if (magSensor != nullptr) {
     bool ok = magSensor->begin();
-    Serial.printf("DBG: MAG reinit -> %s\n", ok ? "OK" : "FAIL");
+    if (debugLevel >= DBG_INFO) {
+      Serial.printf("DBG: MAG init -> %s\n", ok ? "OK" : "FAIL");
+    }
   }
 }
 
 void CameraFirmware::ensureLogicRailForSensors()
 {
+  // Lens owns LOGIC_VCC_SW. Sensors must never force it on.
   if (!digitalRead(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW))) {
-    Serial.println("DBG: enabling LOGIC_VCC_SW for sensors");
-    digitalWrite(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW), HIGH);
-    delay(20);
-    reinitSensors();
+    if (debugLevel >= DBG_VERBOSE) {
+      Serial.println("DBG: sensor access skipped, logic rail is off");
+    }
   }
 }
 
 void CameraFirmware::handleLensDetection()
 {
   bool isDetected = !digitalRead(static_cast<uint8_t>(LENS_PIN::LENS_DETECT));
-  
+
+  if (debugLevel >= DBG_VERBOSE) {
+    Serial.printf("DBG: lens detection -> %s\n", isDetected ? "DETECTED" : "NOT DETECTED");
+  }
+
   if (!lensStatus.isConnected && isDetected)
   {
     mInputBuffer.push(EVENT::LENS_CONNECTED);
     lensStatus.isConnected = true;
-    Serial.println("DBG: lens detected");
+    if (debugLevel >= DBG_VERBOSE) {
+      Serial.println("DBG: lens detected");
+    }
   }
   else if (lensStatus.isConnected && !isDetected)
   {
     mInputBuffer.push(EVENT::LENS_DISCONNECTED);
     lensStatus.isConnected = false;
-    Serial.println("DBG: lens disconnected");
+    if (debugLevel >= DBG_VERBOSE) {
+      Serial.println("DBG: lens disconnected");
+    }
   }
 }
 
@@ -150,6 +156,9 @@ void CameraFirmware::reset()
 {
   lensStatus = LensStatus{0x00, 0x00, 0x00, "", "", false};
   disablePolling();
+  lensToBodyBufferPosition = INVALID_POSITION;
+  packetLength = 0;
+  mSensorsNeedReinit = false;
 }
 
 void CameraFirmware::enablePolling()
@@ -169,10 +178,13 @@ void CameraFirmware::run()
   handleLensDetection();
   updateFSM();
 
-  // Handle delayed sensor reinit after link establishment / rail toggle
+  // Deferred sensor reinit after lens has brought logic rail up.
   if (mSensorsNeedReinit) {
     long dt = (long)(millis() - mSensorReinitAtMs);
     if (dt >= 0) {
+      if (debugLevel >= DBG_INFO) {
+        Serial.println("DBG: running scheduled sensor reinit");
+      }
       reinitSensors();
       mSensorsNeedReinit = false;
     }
@@ -190,7 +202,8 @@ void CameraFirmware::run()
     if (micros() - lastPrintUs >= periodUs) {
       lastPrintUs += periodUs;
 
-      if (magSensor) {
+      const bool logicRailOn = digitalRead(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW));
+      if (magSensor && logicRailOn) {
         magSensor->update(true);
 
         float bx = magSensor->getBx_uT();
@@ -205,10 +218,12 @@ void CameraFirmware::run()
         if (millis() - lastStatsMs > 2000) {
           lastStatsMs = millis();
 
-          Serial.print("# min/max: ");
-          Serial.print(xmin); Serial.print(","); Serial.print(xmax); Serial.print("  ");
-          Serial.print(ymin); Serial.print(","); Serial.print(ymax); Serial.print("  ");
-          Serial.print(zmin); Serial.print(","); Serial.println(zmax);
+          if (debugLevel >= DBG_INFO) {
+            Serial.print("# min/max: ");
+            Serial.print(xmin); Serial.print(","); Serial.print(xmax); Serial.print("  ");
+            Serial.print(ymin); Serial.print(","); Serial.print(ymax); Serial.print("  ");
+            Serial.print(zmin); Serial.print(","); Serial.println(zmax);
+          }
         }
       }
     }
@@ -217,44 +232,50 @@ void CameraFirmware::run()
   // --- Status heartbeat ---
   const unsigned long nowMs = millis();
   if (nowMs - lastStatusMs >= statusPeriodMs) {
-    ensureLogicRailForSensors(); // Ensure logic rail is on before reading sensors for status
     lastStatusMs = nowMs;
 
     lensStatus.extra = "";
+    const bool logicRailOn = digitalRead(static_cast<uint8_t>(LENS_PIN::LOGIC_VCC_SW));
 
-    if (humiditySensor != nullptr) {
-      lensStatus.extra += humiditySensor->packCSV(1);
-    }
-
-    if (imuSensor != nullptr) {
-      if (lensStatus.extra.length() > 0) lensStatus.extra += ",";
-      lensStatus.extra += imuSensor->packCSV(3);
-    }
-
-    if (magSensor != nullptr) {
-      if (lensStatus.extra.length() > 0) lensStatus.extra += ",";
-      lensStatus.extra += magSensor->packCSV(2);
-    }
-
-    if (magSensor != nullptr && imuSensor != nullptr) {
-      float ax = imuSensor->getAx();
-      float ay = imuSensor->getAy();
-      float az = imuSensor->getAz();
-
-      float bx = magSensor->getBx_uT();
-      float by = magSensor->getBy_uT();
-      float bz = magSensor->getBz_uT();
-
-      float hdg = heading_deg_tilt_comp(ax, ay, az, bx, by, bz);
-
-      if (!isnan(hdg)) {
-        if (lensStatus.extra.length() > 0) lensStatus.extra += ",";
-        lensStatus.extra += "Hd:";
-        lensStatus.extra += String(hdg, 1);
+    if (logicRailOn) {
+      if (humiditySensor != nullptr) {
+        lensStatus.extra += humiditySensor->packCSV(1);
       }
+
+      if (imuSensor != nullptr) {
+        if (lensStatus.extra.length() > 0) lensStatus.extra += ",";
+        lensStatus.extra += imuSensor->packCSV(3);
+      }
+
+      if (magSensor != nullptr) {
+        if (lensStatus.extra.length() > 0) lensStatus.extra += ",";
+        lensStatus.extra += magSensor->packCSV(2);
+      }
+
+      if (magSensor != nullptr && imuSensor != nullptr) {
+        float ax = imuSensor->getAx();
+        float ay = imuSensor->getAy();
+        float az = imuSensor->getAz();
+
+        float bx = magSensor->getBx_uT();
+        float by = magSensor->getBy_uT();
+        float bz = magSensor->getBz_uT();
+
+        float hdg = heading_deg_tilt_comp(ax, ay, az, bx, by, bz);
+
+        if (!isnan(hdg)) {
+          if (lensStatus.extra.length() > 0) lensStatus.extra += ",";
+          lensStatus.extra += "Hd:";
+          lensStatus.extra += String(hdg, 1);
+        }
+      }
+    } else if (debugLevel >= DBG_VERBOSE) {
+      Serial.println("DBG: heartbeat skipping sensor read, logic rail is off");
     }
 
-    Serial.println(getStatus());
+    if (debugLevel >= DBG_INFO) {
+      Serial.println(getStatus());
+    }
   }
 
   unsigned long currentTime = micros();
@@ -274,37 +295,49 @@ void CameraFirmware::handleFrontEndInput()
 
     int spaceIndex = message.indexOf(' ');
     String cmd, arg;
-      
+
     if (spaceIndex == -1) {
       cmd = message;
     } else {
       cmd = message.substring(0, spaceIndex);
       arg = message.substring(spaceIndex + 1);
     }
-      
+
     if (cmd == "SA") {
       unsigned int aperture = (unsigned int)arg.toInt();
-      Serial.printf("DBG: received SA %u currentA=%u state=%s\n",
-        aperture, lensStatus.currentAperture, lensStatus.currentState.c_str());
+      if(debugLevel >= DBG_VERBOSE) {
+        Serial.printf("DBG: received SA %u currentA=%u state=%s\n",
+          aperture, lensStatus.currentAperture, lensStatus.currentState.c_str());
+      }
 
       mMessage03.setAperture(aperture);
-    } 
+    }
     else if (cmd == "SF") {
       unsigned int targetLensPos = (unsigned int)arg.toInt();
-      Serial.printf("DBG: received SF %u currentF=%d state=%s\n",
-        targetLensPos, lensStatus.currentLensPos, lensStatus.currentState.c_str());
+      if (debugLevel >= DBG_VERBOSE) {
+        Serial.printf("DBG: received SF %u currentF=%d state=%s\n",
+          targetLensPos, lensStatus.currentLensPos, lensStatus.currentState.c_str());
+      }
 
       mMessage04.setLensPos(lensStatus.currentLensPos, targetLensPos);
-    } 
+    }
     else if (cmd == "ON") {
-      Serial.println("DBG: received ON");
+      if (debugLevel >= DBG_VERBOSE) {
+        Serial.println("DBG: received ON");
+      }
       mInputBuffer.push(EVENT::POWER_ON);
-    } 
+    }
     else if (cmd == "OFF") {
-      Serial.println("DBG: received OFF");
+      if (debugLevel >= DBG_VERBOSE) {
+        Serial.println("DBG: received OFF");
+      }
       mInputBuffer.push(EVENT::POWER_OFF);
-    } else {
-      Serial.printf("DBG: unknown FE cmd '%s'\n", cmd.c_str());
+      mSensorsNeedReinit = true;
+    }
+    else {
+      if (debugLevel >= DBG_VERBOSE) {
+        Serial.printf("DBG: unknown FE cmd '%s'\n", cmd.c_str());
+      }
     }
   }
 }
@@ -323,10 +356,10 @@ void CameraFirmware::sendMessage(const byte* message, int length)
   }
 
   digitalWrite(static_cast<uint8_t>(LENS_PIN::BODY_CS_LENS), HIGH);
-  delayMicroseconds(40);  
-    
+  delayMicroseconds(40);
+
   Serial1.write(message, length);
-    
+
   Serial1.flush();
   delayMicroseconds(40);
   digitalWrite(static_cast<uint8_t>(LENS_PIN::BODY_CS_LENS), LOW);
@@ -341,45 +374,63 @@ String CameraFirmware::getStatus()
 
 void CameraFirmware::processByte()
 {
-  if (!(Serial1.available() > 0))
+  while (Serial1.available() > 0)
   {
-    return;
-  }
-  
-  int read = Serial1.read();
-  if (lensToBodyBufferPosition == INVALID_POSITION)
-  {
-    if (read ==static_cast<byte>(BYTE_VALUE::SOM))
-    {
-      lensToBodyBufferPosition = 0;
-    }
-    else
-    {
-      return;
-    }
-  }
-  
-  lensToBodyBuffer[lensToBodyBufferPosition++] = read;
+    int read = Serial1.read();
 
-  if (lensToBodyBufferPosition >= MAX_BUFFER_SIZE)
-  {
-    lensToBodyBufferPosition = INVALID_POSITION;
-  }
-  else if (lensToBodyBufferPosition == 2)
-  {
-    packetLength = (lensToBodyBuffer[2] << 8) + lensToBodyBuffer[1];
-  }
-
-  if (lensToBodyBufferPosition == packetLength)
-  {
-    if (read == static_cast<byte>(BYTE_VALUE::EOM))
+    if (lensToBodyBufferPosition == INVALID_POSITION)
     {
-      mInputBuffer.push(EVENT::PROCESS_MESSAGE);
-      lensToBodyBufferPosition = INVALID_POSITION;
+      if (read == static_cast<byte>(BYTE_VALUE::SOM))
+      {
+        lensToBodyBufferPosition = 0;
+      }
+      else
+      {
+        continue;
+      }
     }
-    else
+
+    lensToBodyBuffer[lensToBodyBufferPosition++] = read;
+
+    if (lensToBodyBufferPosition >= MAX_BUFFER_SIZE)
     {
+      if (debugLevel >= DBG_INFO) {
+        Serial.println("DBG: lens RX buffer overflow, resetting packet assembly");
+      }
       lensToBodyBufferPosition = INVALID_POSITION;
+      packetLength = 0;
+      continue;
+    }
+    else if (lensToBodyBufferPosition == 3)
+    {
+      packetLength = (lensToBodyBuffer[2] << 8) + lensToBodyBuffer[1];
+
+      if (packetLength <= 0 || packetLength > MAX_BUFFER_SIZE)
+      {
+        if (debugLevel >= DBG_INFO) {
+          Serial.printf("DBG: invalid packet length %d, resetting packet assembly\n", packetLength);
+        }
+        lensToBodyBufferPosition = INVALID_POSITION;
+        packetLength = 0;
+        continue;
+      }
+    }
+
+    if (packetLength > 0 && lensToBodyBufferPosition == packetLength)
+    {
+      if (read == static_cast<byte>(BYTE_VALUE::EOM))
+      {
+        mInputBuffer.push(EVENT::PROCESS_MESSAGE);
+      }
+      else
+      {
+        if (debugLevel >= DBG_INFO) {
+          Serial.println("DBG: packet ended without EOM, dropping packet");
+        }
+      }
+
+      lensToBodyBufferPosition = INVALID_POSITION;
+      packetLength = 0;
     }
   }
 }
