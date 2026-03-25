@@ -1,6 +1,6 @@
 # Sigma_Lens_Control
 
-Control software for the Sigma 15mm Art lens (Sony E-mount protocol).
+Control software for the Sigma 15mm Art lens (Sony E-mount protocol) and ASI 6200 camera.
 
 ---
 
@@ -9,7 +9,8 @@ Control software for the Sigma 15mm Art lens (Sony E-mount protocol).
 The system consists of:
 
 - Backend firmware running on a Teensy 4.0  
-- Frontend Qt GUI for setting focus and aperture  
+- Frontend Qt GUI for setting focus and aperture, and taking picutres with the ASI 6200.
+- Frontend has eight tabs for connecting up to eight cameras at different static IP addresses.
 - (Optional) TCP bridge running on a Beagle board for network-based control  
 
 ---
