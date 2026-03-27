@@ -3,6 +3,7 @@
 
 void IdleState::enter(CameraFirmware& firmware)
 {
+  Serial.println("DBG: ENTER Idle");
   Serial1.end();
   //Make all pins High Impedence, except the switch pins. 
   pinMode(static_cast<uint8_t>(LENS_PIN::BODY_POLL_LENS), INPUT);

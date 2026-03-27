@@ -1,8 +1,12 @@
 #include "../include/InitializationState.h"
 #include "../include/CameraFirmware.h"
+#include "../include/Config.h"
 
 void InitializationState::enter(CameraFirmware& firmware)
 {
+  if (debugLevel >= DBG_VERBOSE) {
+    Serial.println("DBG: ENTER Initialization");
+  }
   //Does the handshake, expects ACK from lens. We're ignoring that. We'll send the pulse, but won't check if there is ACK.
   //Don't want to add more states.
   delayMicroseconds(6);
@@ -56,9 +60,9 @@ void InitializationState::handleInput(CameraFirmware& firmware, EVENT e)
 	  break;        
 	default:
 	  //Unknown message received. Reset.
-	  firmware.mResetCount++;
-	  firmware.mState = &LensState::idle;
-	  firmware.mState->enter(firmware);
+	  if (debugLevel >= DBG_VERBOSE) {
+    	Serial.printf("DBG: INIT unexpected msg type 0x%02X\n", msg.getMessageType());
+	  }
 	  break;
 	}
     }

@@ -2,59 +2,69 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSerialPort>
-#include <QSerialPortInfo>
-#include <QDebug>
-#include <math.h>
-#include <algorithm>
+#include <QVector>
+#include "DevicePanel.h"
+#include <QEvent>
+#include <QString>
+#include <QFile>
+#include <QTextStream>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow {
+
+class MainWindow : public QMainWindow
+{
   Q_OBJECT
-  
+
 public:
-  MainWindow(QWidget *parent = nullptr);
+  explicit MainWindow(QWidget *parent = nullptr);
   ~MainWindow();
-	       
+
 private slots:
-  
-  void toggleConnect();
-  //  void sendCommand();
-  void readSerialData();
   void showAbout();
-  void updateAperture();
-  void updateFocus();
-  void setAperture();
-  void setFocus();
-  void togglePower();
-  void incrementAperture();
-  void decrementAperture();
-  void incrementFocus();
-  void decrementFocus();
-  void handleSerialError(QSerialPort::SerialPortError error);
-  void toggleDebug();
+
+  // Global controls
+  void applyCameraToAll();
+  void applyLensToAll();
+  void applyAllToAll();
+  void captureAll();
+
+  // DevicePanel signals
+  void onLensLedChanged(int slot1, DevicePanel::LedState state);
+  void onCameraLedChanged(int slot1, DevicePanel::LedState state);
+  void onPanelStatusMessage(int slot1, const QString& msg);
+  void onPanelCaptureSaved(int slot1, const QString& path);
+  void onPanelPreviewSaved(int slot1, const QString& path);
+  
 private:
-  void reset();
-  void allowControl(bool value);
-  bool openSerialPort();
-  bool closeSerialPort();
-  void sendCommand(QString cmd);
-  void handleMessage(QString msg);//Parses message received from lens and sets values.
-  void appendDebugLine(const QString& line, int maxLines = 2000);
-  QString getFocus(uint16_t lensPos);
-  float getFNumber(uint16_t aperture);
-  bool mDebug = false;
-  bool mPowerState = true;//indicates on
-  uint16_t mLensPos = 0;
-  uint16_t mAperture = 0;
-  QString mCameraID = "Unknown";
-  QStringList logLines;
-  const int maxLines = 500;
-  Ui::MainWindow *ui;
-  QSerialPort *serial;
-  void refreshPortList();  
+  void initPanels();
+  DevicePanel* panelAtTab(int tabIndex) const;
+  DevicePanel* panelBySlot1(int slot1) const;
+
+  void setLed(QWidget* w, DevicePanel::LedState st);
+
+  void updateCaptureAllEnabled();
+
+  Ui::MainWindow *ui = nullptr;
+
+  QVector<DevicePanel*> mPanels; // size 8, slot1 = index+1
+
+  // capture-all progress bookkeeping
+  int mCaptureAllTotal = 0;
+  int mCaptureAllDone  = 0;
+
+  QString mLastCapturedTiffPath;
+
+  QFile mLogFile;
+  QTextStream mLogStream;
+
+  void openLogFile();
+  void writeLogLine(const QString& line);
+
+  protected:
+  bool eventFilter(QObject* obj, QEvent* event) override;
 };
-#endif // MAINWINDOW_H
+
+#endif
